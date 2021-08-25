@@ -1,4 +1,4 @@
-package com.funnyboyroks.strings;
+package com.funnyboyroks.two.strings;
 
 public class Lab13D {
 

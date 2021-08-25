@@ -1,4 +1,4 @@
-package com.funnyboyroks.strings;
+package com.funnyboyroks.two.strings;
 
 import java.util.ArrayList;
 import java.util.List;

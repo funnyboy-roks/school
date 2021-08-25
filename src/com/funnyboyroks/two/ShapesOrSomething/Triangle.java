@@ -1,4 +1,4 @@
-package com.funnyboyroks.ShapesOrSomething;
+package com.funnyboyroks.two.ShapesOrSomething;
 
 public class Triangle extends Shape {
 

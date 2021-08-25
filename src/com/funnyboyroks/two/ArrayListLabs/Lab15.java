@@ -1,4 +1,4 @@
-package com.funnyboyroks.ArrayListLabs;
+package com.funnyboyroks.two.ArrayListLabs;
 
 import java.util.ArrayList;
 import java.util.Arrays;

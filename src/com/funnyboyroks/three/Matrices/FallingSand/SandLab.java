@@ -76,7 +76,7 @@ public class SandLab {
             break;
             case WATER: {
                 int y1 = y, x1 = x;
-                int dir = rand.nextInt(2);
+                int dir = rand.nextInt(3);
                 try {
                     switch (dir) {
                         case 0:

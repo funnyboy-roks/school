@@ -76,24 +76,22 @@ public class SandLab {
             break;
             case WATER: {
                 int y1 = y, x1 = x;
-                int dir = rand.nextInt(3);
-                try {
-                    switch (dir) {
-                        case 0:
-                            y1++;
-                            break;
-                        case 1:
-                            x1++;
-                            break;
-                        case 2:
-                            x1--;
-                            break;
-                    }
-                } catch (ArrayIndexOutOfBoundsException e) {
-                    return;
+                int dir = rand.nextInt(5);
+                switch (dir) {
+                    case 0:
+                    case 1:
+                    case 2:
+                        y1++;
+                        break;
+                    case 3:
+                        x1++;
+                        break;
+                    case 4:
+                        x1--;
+                        break;
                 }
-                locationClicked(y, x, EMPTY);
-                if(x1 >= 0 && x1 < grid[0].length) {
+                if(x1 >= 0 && x1 < grid[0].length && grid[y1][x1] == EMPTY) {
+                    locationClicked(y, x, EMPTY);
                     locationClicked(y1, x1, WATER);
                 }
             }

@@ -29,19 +29,19 @@ public class AdvancedMatrixRotation {
         int[] values = getBorder(mat);
         setBorder(mat, rotate(values));
         if (mat.length == 2) return;
-        int[][] sub = subMatrix(mat);
+        int[][] sub = getSubMatrix(mat);
         rotate(sub);
         setSubMatrix(mat, sub);
 //        System.out.println(Arrays.toString(values));
     }
 
     /**
-     * Get the matrix that is one level in
+     * Get the matrix that is one level down
      *
      * @param mat The parent matrix
      * @return The output matrix
      */
-    public static int[][] subMatrix(int[][] mat) {
+    public static int[][] getSubMatrix(int[][] mat) {
         int[][] out = new int[mat.length - 2][mat.length - 2];
         int oy = 0;
         int ox = 0;
@@ -57,10 +57,9 @@ public class AdvancedMatrixRotation {
     }
 
     /**
-     * Get the matrix that is one level in
+     * Set the matrix that is one level down
      *
      * @param mat The parent matrix
-     * @return The output matrix
      */
     public static void setSubMatrix(int[][] mat, int[][] sub) {
         int oy = 0;
@@ -84,14 +83,21 @@ public class AdvancedMatrixRotation {
     public static int[] rotate(int[] arr) {
         int[] out = new int[arr.length]; // Output array
         out[0] = arr[arr.length - 1];
-        for (int i = 0; i < arr.length - 1; i++) {
-            out[i + 1] = arr[i];
-        }
+        System.arraycopy(arr, 0, out, 1, arr.length - 1); // Copy the array to the right by one value
         return out;
     }
 
     /**
      * Get the border items from the matrix
+     * <br>
+     * <strong>B</strong> in the example:
+     * <br>
+     * <code>
+     * <strong>B B B B</strong><br>
+     * <strong>B</strong> 1 1 <strong>B</strong><br>
+     * <strong>B</strong> 1 1 <strong>B</strong><br>
+     * <strong>B B B B</strong><br>
+     * </code>
      *
      * @param mat The matrix
      * @return The border items

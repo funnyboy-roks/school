@@ -2,16 +2,16 @@ package com.funnyboyroks.three.Matrices.Rotation;
 
 import java.util.Random;
 
-public class AdvancedMatrixRotation {
+public class AdvancedMatrixRotationChar {
 
     public static void main(String[] args) {
 
-        int[][] mat = randomMatrix(5, 8);
+        char[][] mat = countedMatrix(5, 8);
 
         System.out.println("Before: ");
         print(mat);
 
-        rotate(mat, false);
+        rotate(mat, -1);
 
         System.out.println("After: ");
         print(mat);
@@ -24,9 +24,9 @@ public class AdvancedMatrixRotation {
      * @param mat    The matrix to rotate
      * @param amount The amount of times to rotate (negative to rotate anti-clockwise)
      */
-    public static void rotate(int[][] mat, int amount) {
+    public static void rotate(char[][] mat, int amount) {
         for (int i = 0; i < Math.abs(amount); ++i) {
-            rotate(mat, amount < 0);
+            rotate(mat, amount >= 0);
         }
     }
 
@@ -35,7 +35,7 @@ public class AdvancedMatrixRotation {
      *
      * @param mat The matrix to rotate(Must be square)
      */
-    public static void rotate(int[][] mat) {
+    public static void rotate(char[][] mat) {
         rotate(mat, true);
     }
 
@@ -45,11 +45,11 @@ public class AdvancedMatrixRotation {
      * @param mat       The matrix to rotate(Must be square)
      * @param clockwise Should it rotate clockwise?
      */
-    public static void rotate(int[][] mat, boolean clockwise) {
-        int[] values = getBorder(mat);
+    public static void rotate(char[][] mat, boolean clockwise) {
+        char[] values = getBorder(mat);
         setBorder(mat, rotate(values, clockwise));
         if (mat.length <= 2 || mat[0].length <= 2) return;
-        int[][] sub = getSubMatrix(mat);
+        char[][] sub = getSubMatrix(mat);
         rotate(sub);
         setSubMatrix(mat, sub);
     }
@@ -60,8 +60,8 @@ public class AdvancedMatrixRotation {
      * @param mat The parent matrix
      * @return The output matrix
      */
-    public static int[][] getSubMatrix(int[][] mat) {
-        int[][] out = new int[mat.length - 2][mat[0].length - 2];
+    public static char[][] getSubMatrix(char[][] mat) {
+        char[][] out = new char[mat.length - 2][mat[0].length - 2];
         int ox, oy = 0;
         for (int y = 1; y < mat.length - 1; y++) {
             ox = 0;
@@ -79,7 +79,7 @@ public class AdvancedMatrixRotation {
      *
      * @param mat The parent matrix
      */
-    public static void setSubMatrix(int[][] mat, int[][] sub) {
+    public static void setSubMatrix(char[][] mat, char[][] sub) {
         int ox, oy = 0;
         for (int y = 1; y < mat[0].length - 1; y++) {
             ox = 0;
@@ -98,8 +98,8 @@ public class AdvancedMatrixRotation {
      * @param right If the array should be rotated to the right
      * @return The rotated array
      */
-    public static int[] rotate(int[] arr, boolean right) {
-        int[] out = new int[arr.length]; // Output array
+    public static char[] rotate(char[] arr, boolean right) {
+        char[] out = new char[arr.length]; // Output array
         if (right) {
             out[0] = arr[arr.length - 1];
             System.arraycopy(arr, 0, out, 1, arr.length - 1); // Copy the array to the right by one value
@@ -125,12 +125,12 @@ public class AdvancedMatrixRotation {
      * @param mat The matrix
      * @return The border items
      */
-    public static int[] getBorder(int[][] mat) {
-        int[] values = new int[mat.length * 2 + (mat[0].length - 2) * 2]; // The border values
+    public static char[] getBorder(char[][] mat) {
+        char[] values = new char[mat.length * 2 + (mat[0].length - 2) * 2]; // The border values
         int pos = 0; // The position to add new values
 
         // Add top row values
-        for (int n : mat[0]) {
+        for (char n : mat[0]) {
             values[pos] = n;
             ++pos;
         }
@@ -140,7 +140,7 @@ public class AdvancedMatrixRotation {
             ++pos;
         }
         // Add bottom row values
-        int[] lastRow = mat[mat.length - 1];
+        char[] lastRow = mat[mat.length - 1];
         for (int i = lastRow.length - 1; i >= 0; i--) {
             values[pos] = lastRow[i];
             pos++;
@@ -160,7 +160,7 @@ public class AdvancedMatrixRotation {
      * @param mat    The matrix
      * @param values The new border items to use
      */
-    public static void setBorder(int[][] mat, int[] values) {
+    public static void setBorder(char[][] mat, char[] values) {
         int pos = 0; // The position to read new values to set
         // Set top row values
         for (int i = 0; i < mat[0].length; i++) {
@@ -173,7 +173,7 @@ public class AdvancedMatrixRotation {
             ++pos;
         }
         // Set bottom row values
-        int[] lastRow = mat[mat.length - 1];
+        char[] lastRow = mat[mat.length - 1];
         for (int i = lastRow.length - 1; i >= 0; i--) {
             lastRow[i] = values[pos];
             pos++;
@@ -193,13 +193,13 @@ public class AdvancedMatrixRotation {
      * @param cols The amount of columns in the matrix
      * @return The created matrix
      */
-    public static int[][] countedMatrix(int rows, int cols) {
-        int[][] out = new int[cols][rows];
+    public static char[][] countedMatrix(int rows, int cols) {
+        char[][] out = new char[cols][rows];
 
         int i = 0;
         for (int y = 0; y < out.length; y++) {
             for (int x = 0; x < out[y].length; x++) {
-                out[y][x] = i % 10; // Don't go higher than 10 to keep to single digits
+                out[y][x] = (char) ((i % 94) + 33);
                 ++i;
             }
         }
@@ -213,13 +213,13 @@ public class AdvancedMatrixRotation {
      * @param cols The amount of columns in the matrix
      * @return The created matrix
      */
-    public static int[][] randomMatrix(int rows, int cols) {
-        int[][] out = new int[cols][rows];
+    public static char[][] randomMatrix(int rows, int cols) {
+        char[][] out = new char[cols][rows];
         Random rand = new Random();
 
         for (int y = 0; y < out.length; y++) {
             for (int x = 0; x < out[y].length; x++) {
-                out[y][x] = rand.nextInt(10);
+                char c = (char) (rand.nextInt(94) + 33);
             }
         }
         return out;
@@ -230,10 +230,10 @@ public class AdvancedMatrixRotation {
      *
      * @param mat The matrix to print
      */
-    public static void print(int[][] mat) {
+    public static void print(char[][] mat) {
         StringBuilder sb = new StringBuilder();
-        for (int[] row : mat) {
-            for (int i : row) {
+        for (char[] row : mat) {
+            for (char i : row) {
                 sb.append(i).append(' ');
             }
             sb.append('\n');

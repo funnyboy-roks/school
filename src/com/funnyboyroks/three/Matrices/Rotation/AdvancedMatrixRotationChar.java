@@ -33,7 +33,7 @@ public class AdvancedMatrixRotationChar {
     /**
      * Rotate full matrix clockwise (Recursive)
      *
-     * @param mat The matrix to rotate(Must be square)
+     * @param mat The matrix to rotate
      */
     public static void rotate(char[][] mat) {
         rotate(mat, true);
@@ -42,7 +42,7 @@ public class AdvancedMatrixRotationChar {
     /**
      * Rotate full matrix (Recursive)
      *
-     * @param mat       The matrix to rotate(Must be square)
+     * @param mat       The matrix to rotate
      * @param clockwise Should it rotate clockwise?
      */
     public static void rotate(char[][] mat, boolean clockwise) {

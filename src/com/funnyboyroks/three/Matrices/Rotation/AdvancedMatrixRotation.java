@@ -127,36 +127,18 @@ public class AdvancedMatrixRotation {
      */
     public static int[] getBorder(int[][] mat) {
         int[] values = new int[mat.length * 2 + (mat[0].length - 2) * 2]; // The border values
-        int pos = 0; // The position to add new values
+        int x, y, dx, dy, pos;
+        x = y = dx = dy = pos = 0;
 
-        // Loop through border of Matrix
-        int dx = 1;
-        int dy = 1;
-        int y = 0;
-        int x = 0;
-
-        while (true) {
-            if (y == 0) {
-                if (x == 0 && pos != 0) {
-                    break;
+        while (x + y != 0 || pos == 0) {
+            if (y == 0 || y == mat[0].length - 1) { // Top & Bottom Rows
+                if (x == 0) { // Left
+                    dx = y == 0 ? 1 : 0;
+                    dy = y == 0 ? 0 : -1;
                 }
-                if (x == 0) {
-                    dx = 1;
-                    dy = 0;
-                }
-                if (x == mat[0].length - 1) {
-                    dx = 0;
-                    dy = 1;
-                }
-            }
-            if (y == mat.length - 1) {
-                if (x == 0) {
-                    dx = 0;
-                    dy = -1;
-                }
-                if (x == mat[0].length - 1) {
-                    dx = -1;
-                    dy = 0;
+                if (x == mat[0].length - 1) { // Right
+                    dx = y == 0 ? 0 : -1;
+                    dy = y == 0 ? 1 : 0;
                 }
             }
 
@@ -175,36 +157,18 @@ public class AdvancedMatrixRotation {
      * @param values The new border items to use
      */
     public static void setBorder(int[][] mat, int[] values) {
-        int pos = 0; // The position to read new values to set
+        int x, y, dx, dy, pos;
+        x = y = dx = dy = pos = 0;
 
-        // Loop through all values
-        int dx = 1;
-        int dy = 1;
-        int y = 0;
-        int x = 0;
-
-        while (true) {
-            if (y == 0) {
-                if (x == 0 && pos != 0) {
-                    break;
+        while (x + y != 0 || pos == 0) {
+            if (y == 0 || y == mat[0].length - 1) { // Top & Bottom Rows
+                if (x == 0) { // Left
+                    dx = y == 0 ? 1 : 0;
+                    dy = y == 0 ? 0 : -1;
                 }
-                if (x == 0) {
-                    dx = 1;
-                    dy = 0;
-                }
-                if (x == mat[0].length - 1) {
-                    dx = 0;
-                    dy = 1;
-                }
-            }
-            if (y == mat.length - 1) {
-                if (x == 0) {
-                    dx = 0;
-                    dy = -1;
-                }
-                if (x == mat[0].length - 1) {
-                    dx = -1;
-                    dy = 0;
+                if (x == mat[0].length - 1) { // Right
+                    dx = y == 0 ? 0 : -1;
+                    dy = y == 0 ? 1 : 0;
                 }
             }
 

@@ -6,12 +6,12 @@ public class AdvancedMatrixRotation {
 
     public static void main(String[] args) {
 
-        int[][] mat = randomMatrix(5, 8);
+        int[][] mat = countedMatrix(4, 4);
 
         System.out.println("Before: ");
         print(mat);
 
-        rotate(mat, false);
+        rotate(mat);
 
         System.out.println("After: ");
         print(mat);
@@ -50,7 +50,7 @@ public class AdvancedMatrixRotation {
         setBorder(mat, rotate(values, clockwise));
         if (mat.length <= 2 || mat[0].length <= 2) return;
         int[][] sub = getSubMatrix(mat);
-        rotate(sub);
+        rotate(sub, clockwise);
         setSubMatrix(mat, sub);
     }
 

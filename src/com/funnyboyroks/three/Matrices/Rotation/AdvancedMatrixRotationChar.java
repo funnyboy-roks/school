@@ -50,7 +50,7 @@ public class AdvancedMatrixRotationChar {
         setBorder(mat, rotate(values, clockwise));
         if (mat.length <= 2 || mat[0].length <= 2) return;
         char[][] sub = getSubMatrix(mat);
-        rotate(sub);
+        rotate(sub, clockwise);
         setSubMatrix(mat, sub);
     }
 

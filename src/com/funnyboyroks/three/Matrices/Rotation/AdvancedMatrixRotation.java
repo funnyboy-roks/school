@@ -129,28 +129,42 @@ public class AdvancedMatrixRotation {
         int[] values = new int[mat.length * 2 + (mat[0].length - 2) * 2]; // The border values
         int pos = 0; // The position to add new values
 
-        // Add top row values
-        for (int n : mat[0]) {
-            values[pos] = n;
-            ++pos;
-        }
-        // Add right side values
-        for (int i = 1; i < mat.length - 1; ++i) {
-            values[pos] = mat[i][mat[i].length - 1];
-            ++pos;
-        }
-        // Add bottom row values
-        int[] lastRow = mat[mat.length - 1];
-        for (int i = lastRow.length - 1; i >= 0; i--) {
-            values[pos] = lastRow[i];
-            pos++;
+        // Loop through border of Matrix
+        int dx = 1;
+        int dy = 1;
+        int y = 0;
+        int x = 0;
 
+        while (true) {
+            if (y == 0) {
+                if (x == 0 && pos != 0) {
+                    break;
+                }
+                if (x == 0) {
+                    dx = 1;
+                    dy = 0;
+                }
+                if (x == mat[0].length - 1) {
+                    dx = 0;
+                    dy = 1;
+                }
+            }
+            if (y == mat.length - 1) {
+                if (x == 0) {
+                    dx = 0;
+                    dy = -1;
+                }
+                if (x == mat[0].length - 1) {
+                    dx = -1;
+                    dy = 0;
+                }
+            }
+
+            values[pos++] = mat[y][x];
+            x += dx;
+            y += dy;
         }
-        // Add left side values
-        for (int i = mat.length - 2; i >= 1; i--) {
-            values[pos] = mat[i][0];
-            ++pos;
-        }
+
         return values;
     }
 
@@ -162,27 +176,41 @@ public class AdvancedMatrixRotation {
      */
     public static void setBorder(int[][] mat, int[] values) {
         int pos = 0; // The position to read new values to set
-        // Set top row values
-        for (int i = 0; i < mat[0].length; i++) {
-            mat[0][i] = values[pos];
-            ++pos;
-        }
-        // Set right side values
-        for (int i = 1; i < mat.length - 1; ++i) {
-            mat[i][mat[i].length - 1] = values[pos];
-            ++pos;
-        }
-        // Set bottom row values
-        int[] lastRow = mat[mat.length - 1];
-        for (int i = lastRow.length - 1; i >= 0; i--) {
-            lastRow[i] = values[pos];
-            pos++;
 
-        }
-        // Set left side values
-        for (int i = mat.length - 2; i >= 1; i--) {
-            mat[i][0] = values[pos];
-            ++pos;
+        // Loop through all values
+        int dx = 1;
+        int dy = 1;
+        int y = 0;
+        int x = 0;
+
+        while (true) {
+            if (y == 0) {
+                if (x == 0 && pos != 0) {
+                    break;
+                }
+                if (x == 0) {
+                    dx = 1;
+                    dy = 0;
+                }
+                if (x == mat[0].length - 1) {
+                    dx = 0;
+                    dy = 1;
+                }
+            }
+            if (y == mat.length - 1) {
+                if (x == 0) {
+                    dx = 0;
+                    dy = -1;
+                }
+                if (x == mat[0].length - 1) {
+                    dx = -1;
+                    dy = 0;
+                }
+            }
+
+            mat[y][x] = values[pos++];
+            x += dx;
+            y += dy;
         }
     }
 

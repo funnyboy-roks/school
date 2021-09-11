@@ -8,13 +8,9 @@ public class AdvancedMatrixRotation {
 
         int[][] mat = countedMatrix(4, 4);
 
-        System.out.println("Before: ");
-        print(mat);
-
+        print("Before: ", mat);
         rotate(mat);
-
-        System.out.println("After: ");
-        print(mat);
+        print("After: ", mat);
 
     }
 
@@ -48,9 +44,12 @@ public class AdvancedMatrixRotation {
     public static void rotate(int[][] mat, boolean clockwise) {
         int[] values = getBorder(mat);
         setBorder(mat, rotate(values, clockwise));
+
         if (mat.length <= 2 || mat[0].length <= 2) return;
         int[][] sub = getSubMatrix(mat);
+
         rotate(sub, clockwise);
+
         setSubMatrix(mat, sub);
     }
 
@@ -222,8 +221,8 @@ public class AdvancedMatrixRotation {
      *
      * @param mat The matrix to print
      */
-    public static void print(int[][] mat) {
-        StringBuilder sb = new StringBuilder();
+    public static void print(String prefix, int[][] mat) {
+        StringBuilder sb = new StringBuilder(prefix + '\n');
         for (int[] row : mat) {
             for (int i : row) {
                 sb.append(i).append(' ');

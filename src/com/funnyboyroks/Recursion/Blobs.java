@@ -2,26 +2,25 @@ package com.funnyboyroks.Recursion;
 
 public class Blobs {
 
-    private static final int[][] matrix = new int[500][500];
+    private static final int[][] matrix = new int[8000][8000];
     private static int maxX = 4;
     private static int maxY = 4;
 
     public static void main(String[] args) {
 
         long startTime = System.currentTimeMillis();
-
         fillMatrix();
-        double size = matrix.length * matrix[0].length;
-        System.out.println((matSum(matrix) / size) * 100 + "% full");
-
         System.out.println("Took " + (System.currentTimeMillis() - startTime) + "ms to fill matrix");
+
+        double size = matrix.length * matrix[0].length;
+        System.out.println((matSum(matrix) / size) * 100 + "% set to 1");
+
         startTime = System.currentTimeMillis();
         System.out.println(getLargestBlob(matrix));
         System.out.println("Took " + (System.currentTimeMillis() - startTime) + "ms to get largest blob");
 //        print(matrix);
 
-
-//        int count = floodFill(maxX, maxY, deepCloneMatrix(matrix));
+//        int count = floodFill(4, 4, deepCloneMatrix(matrix));
 
 //        System.out.println(count);
 
@@ -32,7 +31,7 @@ public class Blobs {
         // Efficiency, what's that??
         for (int y = 0; y < matrix.length; y++) {
             for (int x = 0; x < matrix[y].length; x++) {
-                int count = floodFill(x, y, deepCloneMatrix(matrix));
+                int count = floodCount(x, y, deepCloneMatrix(matrix));
                 if (count > maxSize) {
                     maxSize = count;
                     maxX = x;
@@ -49,7 +48,7 @@ public class Blobs {
         // Efficiency, what's that??
         for (int y = 0; y < matrix.length; y++) {
             for (int x = 0; x < matrix[y].length; x++) {
-                int count = floodFill(x, y, deepCloneMatrix(matrix));
+                int count = floodCount(x, y, deepCloneMatrix(matrix));
                 if (count < minSize) {
                     minSize = count;
                     maxX = x;
@@ -87,7 +86,7 @@ public class Blobs {
         return sum;
     }
 
-    public static int floodFill(int x, int y, int[][] matrix) {
+    public static int floodCount(int x, int y, int[][] matrix) {
 
         if (y >= matrix.length || y < 0 || x >= matrix[0].length || x < 0 || matrix[y][x] != 1) {
             return 0;
@@ -96,10 +95,10 @@ public class Blobs {
         matrix[y][x] = 0;
 
         return 1 +
-            floodFill(x - 1, y, matrix) +
-            floodFill(x + 1, y, matrix) +
-            floodFill(x, y + 1, matrix) +
-            floodFill(x, y - 1, matrix);
+            floodCount(x - 1, y, matrix) +
+            floodCount(x + 1, y, matrix) +
+            floodCount(x, y + 1, matrix) +
+            floodCount(x, y - 1, matrix);
 
 
     }

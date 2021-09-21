@@ -2,7 +2,7 @@ package com.funnyboyroks.Recursion;
 
 public class Blobs {
 
-    private static final int[][] matrix = new int[8000][8000];
+    private static final int[][] matrix = new int[200][200];
     private static int maxX = 4;
     private static int maxY = 4;
 

@@ -1,7 +1,5 @@
 package com.funnyboyroks.three.Matrices.PascalsTriangle;
 
-import java.util.Arrays;
-
 /**
  * Pascal's Triangle done in Java with jagged matrices
  */
@@ -9,7 +7,7 @@ public class PascalsTriangle {
 
     public static void main(String[] args) {
 
-        int[][] mat = pascal(5);
+        int[][] mat = pascal(10);
         System.out.println(prettify(mat));
     }
 
@@ -21,7 +19,7 @@ public class PascalsTriangle {
      */
     public static int[][] pascal(int rows) {
         int[][] mat = new int[rows][];
-        mat[0] = new int[]{1};
+        mat[0] = new int[]{ 1 };
 
         for (int i = 1; i < mat.length; i++) {
             mat[i] = getNext(mat[i - 1]);
@@ -48,11 +46,12 @@ public class PascalsTriangle {
 
     /**
      * Prettify the 2d matrix to make it a triangle
+     *
      * @param mat The matrix
      * @return The formatted String
      */
     public static String prettify(int[][] mat) {
-        int padAmt = mat[mat.length-1].length;
+        int padAmt = mat[mat.length - 1].length;
         StringBuilder sb = new StringBuilder();
         for (int[] row : mat) {
             sb.append(" ".repeat(padAmt));

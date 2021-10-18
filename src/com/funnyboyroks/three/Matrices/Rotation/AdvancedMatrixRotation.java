@@ -9,7 +9,7 @@ public class AdvancedMatrixRotation {
         int[][] mat = countedMatrix(4, 4);
 
         print("Before: ", mat);
-        rotate(mat);
+        rotate(mat, -2);
         print("After: ", mat);
 
     }

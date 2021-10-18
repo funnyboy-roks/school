@@ -5,9 +5,9 @@ import java.math.BigInteger;
 public class Day1 {
 
     public static void main(String[] args) {
-//        int prod = factorialIterative(4);
-//        int prod = factorialIterative(0);
-//        int prod = factorialRecur(4);
+//        long prod = factorialIterative(4);
+//        long prod = factorialIterative(0);
+//        long prod = factorialRecur(4);
 //        System.out.println(prod);
         for (int i = 0; i < 100; ++i) {
             System.out.println(i + " - " + factorialRecurBig(BigInteger.valueOf(i)));

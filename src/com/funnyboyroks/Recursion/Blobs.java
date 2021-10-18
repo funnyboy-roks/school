@@ -2,27 +2,27 @@ package com.funnyboyroks.Recursion;
 
 public class Blobs {
 
-    private static final int[][] matrix = new int[200][200];
+    private static final int[][] matrix = new int[20][20];
     private static int maxX = 4;
     private static int maxY = 4;
 
     public static void main(String[] args) {
 
-        long startTime = System.currentTimeMillis();
+//        long startTime = System.currentTimeMillis();
         fillMatrix();
-        System.out.println("Took " + (System.currentTimeMillis() - startTime) + "ms to fill matrix");
+//        System.out.println("Took " + (System.currentTimeMillis() - startTime) + "ms to fill matrix");
+//
+//        double size = matrix.length * matrix[0].length;
+//        System.out.println((matSum(matrix) / size) * 100 + "% set to 1");
+//
+//        startTime = System.currentTimeMillis();
+//        System.out.println(getLargestBlob(matrix));
+//        System.out.println("Took " + (System.currentTimeMillis() - startTime) + "ms to get largest blob");
+        print(matrix);
 
-        double size = matrix.length * matrix[0].length;
-        System.out.println((matSum(matrix) / size) * 100 + "% set to 1");
+        int count = floodCount(4, 4, deepCloneMatrix(matrix));
 
-        startTime = System.currentTimeMillis();
-        System.out.println(getLargestBlob(matrix));
-        System.out.println("Took " + (System.currentTimeMillis() - startTime) + "ms to get largest blob");
-//        print(matrix);
-
-//        int count = floodFill(4, 4, deepCloneMatrix(matrix));
-
-//        System.out.println(count);
+        System.out.println(count);
 
     }
 

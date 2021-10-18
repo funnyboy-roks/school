@@ -7,53 +7,18 @@ package com.funnyboyroks.three.stacks.ImageEnhancer;
  * and originally inspired by a tutorial example at Oracle.com.
  */
 
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Graphics;
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.image.BufferedImage;
-import java.awt.image.ByteLookupTable;
-import java.awt.image.ConvolveOp;
-import java.awt.image.Kernel;
-import java.awt.image.LookupOp;
+import java.awt.image.*;
 import java.io.File;
 import java.io.IOException;
 
-import javax.imageio.ImageIO;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-
 public class ImageEnhancer extends Component implements ActionListener {
-
-    CustomStack<BufferedImage> undoStack = new CustomStack<>();
-    CustomStack<BufferedImage> redoStack = new CustomStack<>();
-
-    private static final long serialVersionUID = 1L;
-    String startingImage = "AYPE-Rainier-Vista.jpg";
-    BufferedImage biTemp; // Used when reading in an image.
-    BufferedImage biWorking; // The current image.
-    BufferedImage biFiltered; // Result of processing the current image.
-    Graphics gWorking; // Object that allows drawing pixels into biWorking.
-    int width, height;
-    byte[] darkening_lut, photoneg_lut, threshold_lut; // look-up tables
-    LookupOp darkening_op, photoneg_op, threshold_op; // look-up operators
-    ConvolveOp blurring_op, sharpening_op; // convolution operators
-
-    // Note that the menu items are public so that they can be easily called
-    // by the external autograder code.
-    private static JMenuBar menuBar;
-    private static JMenu fileMenu, editMenu, imageMenu;
-    public static JMenuItem exitItem, undoItem, redoItem, darkenItem,
-        blurItem, sharpenItem, photoNegItem, thresholdItem;
-
-    //  Students: Here, you should declare two variables to hold instances
-    //  of your stack class, with one for Undo and one for Redo.
-
 
     // A 3x3 filtering kernel for high-pass filtering:
     public static final float[] highPass = {
@@ -61,13 +26,60 @@ public class ImageEnhancer extends Component implements ActionListener {
         -1.f, 5.f, -1.f,
         0.f, -1.f, 0.f
     };
-
     // A 3x3 filtering kernel for low-pass filtering:
     public static final float[] lowPass = {
         0.1f, 0.1f, 0.1f,
         0.1f, 0.2f, 0.1f,
         0.1f, 0.1f, 0.1f
     };
+    private static final long serialVersionUID = 1L;
+    public static JMenuItem exitItem, undoItem, redoItem, darkenItem,
+        blurItem, sharpenItem, photoNegItem, thresholdItem;
+    // Note that the menu items are public so that they can be easily called
+    // by the external autograder code.
+    private static JMenuBar menuBar;
+    private static JMenu fileMenu, editMenu, imageMenu;
+    String startingImage = "AYPE-Rainier-Vista.jpg";
+    BufferedImage biTemp; // Used when reading in an image.
+    BufferedImage biWorking; // The current image.
+    BufferedImage biFiltered; // Result of processing the current image.
+    Graphics gWorking; // Object that allows drawing pixels into biWorking.
+    int width, height;
+    byte[] darkening_lut, photoneg_lut, threshold_lut; // look-up tables
+
+    //  Students: Here, you should declare two variables to hold instances
+    //  of your stack class, with one for Undo and one for Redo.
+    BufferedImageStack undoStack, redoStack;
+    LookupOp darkening_op, photoneg_op, threshold_op; // look-up operators
+    ConvolveOp blurring_op, sharpening_op; // convolution operators
+    private ImageEnhancer image_enhancer_instance;
+
+    public ImageEnhancer() {
+        createMenu();
+        setUpImageTransformations();
+        try {
+            biTemp = ImageIO.read(new File(startingImage));
+            width = biTemp.getWidth(null);
+            height = biTemp.getHeight(null);
+            biWorking = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+            gWorking = biWorking.getGraphics();
+            gWorking.drawImage(biTemp, 0, 0, null);
+        } catch (IOException e) {
+            System.out.println("Image could not be read: " + startingImage);
+            System.exit(1);
+        }
+
+        //  Students: Add code to create empty stack instances for the Undo stack
+        //  and the Redo stack, and put your code for this here:
+        undoStack = new BufferedImageStack();
+        redoStack = new BufferedImageStack();
+
+
+    }
+
+    public static void main(String s[]) {
+        new ImageEnhancer().run(); // Called from below, and by the autograder.
+    }
 
     private void createMenu() {
         menuBar = new JMenuBar();
@@ -142,26 +154,6 @@ public class ImageEnhancer extends Component implements ActionListener {
                                        ConvolveOp.EDGE_NO_OP, null);
     }
 
-    public ImageEnhancer() {
-        createMenu();
-        setUpImageTransformations();
-        try {
-            biTemp = ImageIO.read(new File(startingImage));
-            width = biTemp.getWidth(null);
-            height = biTemp.getHeight(null);
-            biWorking = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-            gWorking = biWorking.getGraphics();
-            gWorking.drawImage(biTemp, 0, 0, null);
-        } catch (IOException e) {
-            System.out.println("Image could not be read: " + startingImage);
-            System.exit(1);
-        }
-
-        //  Students: Add code to create empty stack instances for the Undo stack
-        //  and the Redo stack, and put your code for this here:
-
-    }
-
     public Dimension getPreferredSize() {
         return new Dimension(width, height);
     }
@@ -216,13 +208,16 @@ public class ImageEnhancer extends Component implements ActionListener {
         if (e.getSource() == thresholdItem) {
             threshold();
         }
-        if(e.getSource() == redoItem) {
-            redo();
-        } else if(e.getSource() == undoItem) {
-            undo();
+
+        if (e.getSource() == redoItem) {
+            undoStack.push(copyBufferedImage(biFiltered));
+            setBufferedImage(redoStack.pop(), biFiltered);
+        } else if (e.getSource() == undoItem) {
+            redoStack.push(copyBufferedImage(biFiltered));
+            setBufferedImage(undoStack.pop(), biFiltered);
         } else {
-            redoStack.clear();
-            undoStack.push(biWorking);
+            redoStack.reset();
+            undoStack.push(copyBufferedImage(biWorking));
         }
 
         undoItem.setEnabled(!undoStack.isEmpty());
@@ -233,8 +228,6 @@ public class ImageEnhancer extends Component implements ActionListener {
         printNumbersOfElementsInBothStacks(); // Report on the states of the stacks.
         return;
     }
-
-    private ImageEnhancer image_enhancer_instance;
 
     public ImageEnhancer getImageEnhancer() { // For use by the autograder
         if (image_enhancer_instance == null) {
@@ -247,10 +240,6 @@ public class ImageEnhancer extends Component implements ActionListener {
         return biWorking;
     }
 
-    public static void main(String s[]) {
-        new ImageEnhancer().run(); // Called from below, and by the autograder.
-    }
-
     public void run() {
         JFrame f = new JFrame("ImageEnhancer with Undo or Redo"); // Students should update this.
         f.addWindowListener(new WindowAdapter() {
@@ -259,36 +248,31 @@ public class ImageEnhancer extends Component implements ActionListener {
             }
         });
         image_enhancer_instance = new ImageEnhancer();
-        f.setJMenuBar(image_enhancer_instance.menuBar);
+        f.setJMenuBar(menuBar);
         f.add("Center", image_enhancer_instance);
         f.pack();
         f.setVisible(true);
     }
 
-    public void redo() {
-        BufferedImage item = redoStack.pop();
-        biTemp = item;
-        biWorking = item;
-        biFiltered = item;
-        undoStack.push(item);
-        gWorking.drawImage(biFiltered, 0, 0, null);
-    }
-
-    public void undo() {
-        System.out.println("undoStack = " + undoStack);
-        System.out.println("redoStack = " + redoStack);
-        BufferedImage item = undoStack.pop();
-        biTemp = item;
-        biWorking = item;
-        biFiltered = item;
-        redoStack.push(item);
+    public void setBufferedImage(BufferedImage src, BufferedImage dest) {
+        Graphics gDest = dest.getGraphics();
+        gDest.drawImage(src, 0, 0, null);
 
     }
 
+    public BufferedImage copyBufferedImage(BufferedImage from) {
+        BufferedImage biNew = new BufferedImage(from.getWidth(), from.getHeight(), from.getType());
+        setBufferedImage(from, biNew);
+        return biNew;
+    }
+
+    /**
+     * Comment by me: Absolutely horrible method name :/
+     */
     public void printNumbersOfElementsInBothStacks() {
-        //  Students: Uncomment this code that prints out the numbers of elements
-        //  in each of the two stacks (Undo and Redo):
-        //System.out.println("The Undo stack contains " + undoStack.getSize() + " elements.");
-        //System.out.println("The Redo stack contains " + redoStack.getSize() + " elements.");
+//          Students: Uncomment this code that prints out the numbers of elements
+//          in each of the two stacks (Undo and Redo):
+        System.out.println("The Undo stack contains " + undoStack.getSize() + " elements.");
+        System.out.println("The Redo stack contains " + redoStack.getSize() + " elements.");
     }
 }

@@ -4,12 +4,13 @@ import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.EmptyStackException;
 
-public class BufferedImageStack {
+public class BufferedImageQueue {
 
     BufferedImage[] items;
-    int end = -1;
+    int currentInput = 0;
+    int currentOutput = 0;
 
-    public BufferedImageStack() {
+    public BufferedImageQueue() {
         this.items = new BufferedImage[2];
     }
 
@@ -22,34 +23,37 @@ public class BufferedImageStack {
 
     public void push(BufferedImage img) {
 
-        if (this.end == this.items.length || this.items[this.items.length - 1] != null) {
+        if (this.currentInput == this.items.length || this.items[this.items.length - 1] != null) {
             extendArray();
         }
 
-        this.items[++this.end] = img;
+        this.items[this.currentInput] = img;
+        ++this.currentInput;
 
     }
 
     public boolean isEmpty() {
-        return this.end == -1 || this.items[this.end] == null;
+        return this.currentInput == this.currentOutput || this.items[this.currentOutput] == null;
     }
 
     public BufferedImage pop() {
         if (this.isEmpty()) throw new EmptyStackException();
 
-        BufferedImage out = this.items[this.end];
-        this.items[this.end--] = null;
+        BufferedImage out = this.items[this.currentOutput];
+        this.items[this.currentOutput] = null;
+
+        ++this.currentOutput;
         return out;
     }
 
     public BufferedImage get(int index) {
-        BufferedImage img = this.items[index + this.end];
+        BufferedImage img = this.items[index + this.currentOutput];
         if (img == null) throw new IndexOutOfBoundsException();
         return img;
     }
 
     public int getSize() {
-        return this.end + 1;
+        return this.currentInput - this.currentOutput;
     }
 
     public int getArraySize() {
@@ -62,8 +66,11 @@ public class BufferedImageStack {
 
     @Override
     public String toString() {
-        return "BufferedImageStack{items=" + Arrays.toString(items) +
-            ", currentOutput=" + end +
-            '}';
+        final StringBuilder sb = new StringBuilder("BufferedImageStack{");
+        sb.append("items=").append(Arrays.toString(items));
+        sb.append(", currentInput=").append(currentInput);
+        sb.append(", currentOutput=").append(currentOutput);
+        sb.append('}');
+        return sb.toString();
     }
 }

@@ -4,20 +4,15 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List; // Only here for creating Queue with items
+import java.util.stream.Collectors;
 
 public class Queue<T> implements java.util.Queue<T> {
 
     public static void main(String[] args) {
-        Queue<Integer> ints = new Queue<>(List.of(1, 2, 3));
-        System.out.println(ints.poll());
-        ints.addAll(List.of(3, 2, 1));
-//        ints.clear();
+        Queue<Integer> ints = new Queue<>();
+        ints.addAll(List.of(1, 2, 3, 4, 5));
+        System.out.println(ints.toString2());
 
-        for (Integer anInt : ints) {
-            System.out.println(anInt);
-        }
-        System.out.println("contains 3? - " + ints.contains(3));
-        System.out.println(ints);
     }
 
     protected Node<T> head = null;
@@ -37,6 +32,13 @@ public class Queue<T> implements java.util.Queue<T> {
     public Queue(Collection<T> items) {
         super();
         this.addAll(items);
+    }
+
+    public Queue(T... items) {
+        super();
+        for (T item : items) { // Can be replaced with Arrays#sList, but I don't wanna :P
+            this.add(item);
+        }
     }
 
     /**
@@ -61,8 +63,8 @@ public class Queue<T> implements java.util.Queue<T> {
     public boolean contains(Object o) {
         Node<T> node = this.head;
         int i = 0;
-        while(node != null && i < this.size) {
-            if(node.getValue() == o) return true;
+        while (node != null && i < this.size) {
+            if (node.getValue() == o) return true;
             node = node.getTail();
             ++i;
         }
@@ -72,12 +74,7 @@ public class Queue<T> implements java.util.Queue<T> {
 
     @Override
     public Iterator<T> iterator() {
-        try {
-            return new QueueIterator<>(this);
-        } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
-        }
-        return null;
+        return new QueueIterator<>(this);
     }
 
     @Override
@@ -137,7 +134,7 @@ public class Queue<T> implements java.util.Queue<T> {
 
     @Override
     public boolean containsAll(Collection<?> collection) {
-        return collection.stream().map(this::contains).reduce((a, b) -> a && b).orElse(true);
+        return collection.stream().map(this::contains).reduce(true, Boolean::logicalAnd);
     }
 
     @Override
@@ -170,8 +167,8 @@ public class Queue<T> implements java.util.Queue<T> {
     public T remove() {
         if (this.size <= 0) throw new IndexOutOfBoundsException();
         --this.size;
-        T o = this.tail.getValue();
-        (this.head.head = this.tail = this.tail.head).tail = this.head;
+        T o = this.head.getValue();
+        (this.tail.tail = this.head = this.head.tail).head = this.tail;
         return o;
     }
 
@@ -219,18 +216,44 @@ public class Queue<T> implements java.util.Queue<T> {
         return sb.append("]").toString();
     }
 
-    @Override
-    protected Queue<T> clone() throws CloneNotSupportedException {
-//        super.clone();
+    public Queue<T> copy() {
         Queue<T> q = new Queue<>();
         Node<T> node = this.head;
         int i = 0;
-        while(node != null && i < size) {
+        while (node != null && i < size) {
             q.add(node.getValue());
             node = node.getTail();
             ++i;
         }
         return q;
+    }
+
+    /**
+     * Methods specifically for assignment -- mostly just an alias for another method
+     */
+
+    public boolean enqueue(T item) {
+        return this.offer(item);
+    }
+
+    public T dequeue() {
+        return this.poll();
+    }
+
+    /**
+     * Rotate the items in the queue by one
+     *
+     * @return if there were enough items to rotate
+     */
+    public boolean sentToBack() {
+        if (this.isEmpty() || this.size == 1) return false;
+        this.tail = this.head;
+        this.head = this.head.tail;
+        return true;
+    }
+
+    public String toString2() {
+        return this.stream().map(T::toString).collect(Collectors.joining(" | "));
     }
 
     private static class Node<T> {
@@ -276,8 +299,8 @@ public class Queue<T> implements java.util.Queue<T> {
 
         Queue<T> data;
 
-        QueueIterator(Queue<T> data) throws CloneNotSupportedException {
-            this.data = data.clone(); // Clone it
+        QueueIterator(Queue<T> data) {
+            this.data = data.copy(); // Clone it
         }
 
         @Override

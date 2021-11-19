@@ -1,4 +1,4 @@
-package com.funnyboyroks.Recursion;
+package com.funnyboyroks.two.Recursion;
 
 public class Blobs {
 

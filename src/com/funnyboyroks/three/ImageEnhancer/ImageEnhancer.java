@@ -1,4 +1,4 @@
-package com.funnyboyroks.three.stacks.ImageEnhancer;
+package com.funnyboyroks.three.ImageEnhancer;
 
 /*
  * ImageEnhancer.java

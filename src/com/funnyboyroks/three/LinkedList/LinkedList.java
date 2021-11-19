@@ -1,7 +1,5 @@
 package com.funnyboyroks.three.LinkedList;
 
-import java.util.Arrays;
-
 public class LinkedList <T> {
 
     private Node<T> head;

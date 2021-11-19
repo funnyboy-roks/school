@@ -3,6 +3,10 @@ package com.funnyboyroks.three.LinkedList;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * A full implementation of the {@link java.util.Queue} interface
+ * @param <T> The type of data for the class to store.
+ */
 public class Queue<T> implements java.util.Queue<T> {
 
     public static void main(String[] args) {

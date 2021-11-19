@@ -1,4 +1,4 @@
-package com.funnyboyroks.Challenges.NineSept.ElevenNov;
+package com.funnyboyroks.Challenges.ElevenNov;
 
 import java.util.Scanner;
 

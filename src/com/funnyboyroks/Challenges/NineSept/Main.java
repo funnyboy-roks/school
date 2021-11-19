@@ -1,6 +1,5 @@
 package com.funnyboyroks.Challenges.NineSept;
 
-import java.awt.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;

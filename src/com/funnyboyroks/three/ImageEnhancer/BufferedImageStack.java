@@ -1,16 +1,15 @@
-package com.funnyboyroks.three.stacks.ImageEnhancer;
+package com.funnyboyroks.three.ImageEnhancer;
 
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.EmptyStackException;
 
-public class BufferedImageQueue {
+public class BufferedImageStack {
 
     BufferedImage[] items;
-    int currentInput = 0;
-    int currentOutput = 0;
+    int end = -1;
 
-    public BufferedImageQueue() {
+    public BufferedImageStack() {
         this.items = new BufferedImage[2];
     }
 
@@ -23,37 +22,34 @@ public class BufferedImageQueue {
 
     public void push(BufferedImage img) {
 
-        if (this.currentInput == this.items.length || this.items[this.items.length - 1] != null) {
+        if (this.end == this.items.length || this.items[this.items.length - 1] != null) {
             extendArray();
         }
 
-        this.items[this.currentInput] = img;
-        ++this.currentInput;
+        this.items[++this.end] = img;
 
     }
 
     public boolean isEmpty() {
-        return this.currentInput == this.currentOutput || this.items[this.currentOutput] == null;
+        return this.end == -1 || this.items[this.end] == null;
     }
 
     public BufferedImage pop() {
         if (this.isEmpty()) throw new EmptyStackException();
 
-        BufferedImage out = this.items[this.currentOutput];
-        this.items[this.currentOutput] = null;
-
-        ++this.currentOutput;
+        BufferedImage out = this.items[this.end];
+        this.items[this.end--] = null;
         return out;
     }
 
     public BufferedImage get(int index) {
-        BufferedImage img = this.items[index + this.currentOutput];
+        BufferedImage img = this.items[index + this.end];
         if (img == null) throw new IndexOutOfBoundsException();
         return img;
     }
 
     public int getSize() {
-        return this.currentInput - this.currentOutput;
+        return this.end + 1;
     }
 
     public int getArraySize() {
@@ -66,11 +62,8 @@ public class BufferedImageQueue {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("BufferedImageStack{");
-        sb.append("items=").append(Arrays.toString(items));
-        sb.append(", currentInput=").append(currentInput);
-        sb.append(", currentOutput=").append(currentOutput);
-        sb.append('}');
-        return sb.toString();
+        return "BufferedImageStack{items=" + Arrays.toString(items) +
+            ", currentOutput=" + end +
+            '}';
     }
 }

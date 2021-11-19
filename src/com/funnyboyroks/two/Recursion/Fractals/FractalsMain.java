@@ -1,4 +1,4 @@
-package com.funnyboyroks.Recursion.Fractals;
+package com.funnyboyroks.two.Recursion.Fractals;
 
 import com.funnyboyroks.three.Matrices.ImageLab.DrawingPanel;
 

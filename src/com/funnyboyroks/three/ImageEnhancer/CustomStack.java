@@ -1,4 +1,4 @@
-package com.funnyboyroks.three.stacks.ImageEnhancer;
+package com.funnyboyroks.three.ImageEnhancer;
 
 import java.util.ArrayList;
 import java.util.List;

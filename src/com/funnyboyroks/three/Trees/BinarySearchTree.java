@@ -23,8 +23,8 @@ public class BinarySearchTree<T> {
         System.out.println(tree.inOrderTransversal());
     }
 
-    Comparator<T> comparator;
-    Node<T> root;
+    public final Comparator<T> comparator;
+    public Node<T> root;
 
     public BinarySearchTree(Comparator<T> comparator) {
         this.root = null;
@@ -55,6 +55,9 @@ public class BinarySearchTree<T> {
         return this.root.size();
     }
 
+    /**
+     * If the tree contains the provided value, relies on the {@link Comparator} provided
+     */
     public boolean contains(T value) {
         return root != null && root.contains(value);
     }

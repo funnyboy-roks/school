@@ -5,7 +5,7 @@ import java.util.Comparator;
 public class BinarySearchTreeTest {
 
     public static void main(String[] args) {
-        BinarySearchTree<TestObj> tree = new BinarySearchTree<>(Comparator.comparingInt(o -> o.intValue));
+        BinarySearchTreeOriginal<TestObj> tree = new BinarySearchTreeOriginal<>(Comparator.comparingInt(o -> o.intValue));
         tree.add(new TestObj(1, "Hello World"));
     }
 

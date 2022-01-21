@@ -15,12 +15,16 @@ public class BinarySearchTree<T> {
         System.out.println(tree);
     }
 
-    private Node<T> root;
-    private final Comparator<T> comparator;
+    public Node<T> root;
+    public final Comparator<T> comparator;
 
     public BinarySearchTree(Comparator<T> comparator) {
         this.comparator = comparator;
         this.root = null;
+    }
+
+    private void addAll(Collection<T> values) {
+        values.forEach(this::add);
     }
 
     public boolean add(T value) {
@@ -30,6 +34,7 @@ public class BinarySearchTree<T> {
         }
         return this.root.add(value, comparator);
     }
+
 
     public int getSize() { // This is more reliable than having a running count.  Sure, it's O(n), but idrc
         if (this.root == null) return 0; // Empty if root doesn't exist
@@ -65,9 +70,19 @@ public class BinarySearchTree<T> {
      */
     public boolean remove(T item) {
         if(this.root == null) return false; // Can't remove anything if empty
-        // You know what, let's do it in a single method :)
-        Node<T> node = this.root;
-        throw new RuntimeException("Not Yet Implemented!");
+        if(this.root.value.equals(item)) {
+            List<T> data = this.root.values().stream().filter(n -> !n.equals(item)).toList();
+            this.root = null;
+            this.addAll(data);
+            return true;
+        }
+
+        return this.root.remove(item, this);
+    }
+
+    @Override
+    public String toString() {
+        return this.values().toString();
     }
 
     public static class Node<T> {
@@ -147,6 +162,51 @@ public class BinarySearchTree<T> {
             if(this.right == null) return this.value;
             return this.right.getMost();
         }
+
+        @Deprecated
+        public boolean remove(T value, BinarySearchTree<T> tree) {
+            if(this.value.equals(value)) {
+                List<T> values = this
+                    .values()
+                    .stream()
+                    .filter(n -> !n.equals(value))
+                    .toList();
+                tree.addAll(values);
+                return true;
+            }
+            if (this.left != null) {
+                if (this.left.value.equals(value)) {
+                    List<T> values = this.left
+                        .values()
+                        .stream()
+                        .filter(n -> !n.equals(value)) // I'm too lazy to do this properly :P
+                        .toList();
+
+                    this.left = null;
+                    tree.addAll(values);
+                    return true;
+                }
+                if(this.left.remove(value, tree)) {
+                    return true;
+                }
+            }
+            if (this.right != null) {
+                if (this.right.value.equals(value)) {
+                    List<T> values = this.right
+                        .values()
+                        .stream()
+                        .filter(n -> !n.equals(value)) // I'm too lazy to do this properly :P
+                        .toList();
+
+                    this.right = null;
+                    tree.addAll(values);
+                    return true;
+                }
+                return this.right.remove(value, tree);
+            }
+            return false;
+        }
+
     }
 
 }

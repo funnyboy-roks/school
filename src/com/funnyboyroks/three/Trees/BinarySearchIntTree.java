@@ -29,6 +29,10 @@ public class BinarySearchIntTree extends BinarySearchTree<Integer>{
 
     @Override
     public String toString() {
-        return this.values().stream().map(String::valueOf).collect(Collectors.joining(" "));
+        return this
+            .values()
+            .stream()
+            .map(String::valueOf)
+            .collect(Collectors.joining(" "));
     }
 }

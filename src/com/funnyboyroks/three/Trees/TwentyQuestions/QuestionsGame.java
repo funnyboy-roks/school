@@ -27,7 +27,7 @@ public class QuestionsGame {
     }
 
     public void play() {
-        var preOrder = this.tree.preOrder();
+        List<Node<String>> preOrder = this.tree.preOrder();
         long leaves = preOrder.stream().filter(Node::isLeaf).count();
         System.out.printf(
             "Tree Info:%n\tHeight: %d%n\tNodes: %d%n\tQuestions: %d%n\tAnswers: %d%n",
@@ -38,25 +38,16 @@ public class QuestionsGame {
         );
 
         Node<String> current = this.tree.root;
-        int n = 0;
-        int count = 0;
-        while (!current.isLeaf()) { // Go down the path
-            boolean conf = this.confirm(current.value.replace("%", "%%"));
-            current = conf ? current.left : current.right;
-            n <<= 1;
-            n |= conf ? 1 : 0;
-            ++count;
-        }
         boolean wrong = !this.confirm("I guess %s, is this correct?", current.value);
         if (wrong) {
-            var obj = this.prompt("What object were you thinking?");
+            String obj = this.prompt("What object were you thinking?");
             if (obj.equalsIgnoreCase(current.value)) {
                 System.out.println("That's what I said!");
                 return;
             }
-            var question = this.prompt("What question should be asked to tell them apart?");
-            var answer = this.confirm("To get to %s, would the player answer yes or no to %s", obj, question);
-            var currentVal = current.value;
+            String question = this.prompt("What question should be asked to tell them apart?");
+            boolean answer = this.confirm("To get to %s, would the player answer yes or no to %s", obj, question);
+            String currentVal = current.value;
             current.value = question;
             if (answer) {
                 current.left = new Node<>(obj);
@@ -81,7 +72,7 @@ public class QuestionsGame {
     }
 
     public boolean confirm(String str, Object... replacements) {
-        var s = this.prompt(str, replacements);
+        String s = this.prompt(str, replacements);
         int attempts = 5;
         while (--attempts > 0) {
             if (YES.contains(s)) {

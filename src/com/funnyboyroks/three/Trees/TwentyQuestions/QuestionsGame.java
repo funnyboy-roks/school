@@ -47,7 +47,6 @@ public class QuestionsGame {
             n |= conf ? 1 : 0;
             ++count;
         }
-        System.out.printf("Output ID: %0" + count + "s%n", Integer.toBinaryString(n));
         boolean wrong = !this.confirm("I guess %s, is this correct?", current.value);
         if (wrong) {
             var obj = this.prompt("What object were you thinking?");

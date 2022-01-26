@@ -1,54 +1,105 @@
 package com.funnyboyroks.three.Trees.TwentyQuestions;
 
-import java.io.PrintStream;
+import com.funnyboyroks.three.Trees.TwentyQuestions.BinaryTree.Node;
+
+import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Stream;
 
 public class QuestionsGame {
 
-    public static void main(String[] args) {
-        Serializer serializer = new Serializer("test.txt");
-        var tree = new BinaryTree<String>();
-        tree.root = new BinaryTree.Node<>("Hello World");
-        tree.root.left = new BinaryTree.Node<>("Question 2 Test");
-        tree.root.right = new BinaryTree.Node<>("Answer Test");
-//        tree.root.right.left = new BinaryTree.Node<>("Answer Test");
-        serializer.serialize(tree);
+    private static final List<String> YES = Stream.of("yes", "yeah", "y", "yep", "aye", "true", "t").map(String::toLowerCase).toList();
+    private static final List<String> NO  = Stream.of("no", "n", "nope", "nay", "false", "f").map(String::toLowerCase).toList();
 
-        Deserializer deserializer = new Deserializer("test.txt");
-        var treeD = deserializer.deserialize();
-        System.out.println(treeD);
-        System.out.println(treeD.preOrder().stream().map(n -> (n.isLeaf() ? "A: " : "Q: ") + n.value).toList());
+    private final Serializer         serializer;
+    private final Deserializer       deserializer;
+    private final Scanner            userInput;
+    private       BinaryTree<String> tree;
+
+    public QuestionsGame(String filePath) {
+        this.userInput = new Scanner(System.in);
+        this.serializer = new Serializer(filePath);
+        this.deserializer = new Deserializer(filePath);
+        this.tree = this.deserializer.deserializeCatch();
+        if (this.tree == null) {
+            this.tree = new BinaryTree<>(this.getInitialObject());
+        }
     }
-
-    static {
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            System.out.println("Shutdown");
-        }, "Shutdown-Thread"));
-    }
-
-    private final BinaryTree<String> questionTree = null;
-    private final Serializer serializer;
-    private final Deserializer deserializer;
-
-    private QuestionsGame() {
-        this.serializer = new Serializer("file.txt");
-        this.deserializer = new Deserializer("file.txt");
-    }
-
-    public QuestionsGame(Scanner userInput) {
-        this();
-    }
-
-    public QuestionsGame(String initialObject) {
-        this();
-    }
-
 
     public void play() {
+        var preOrder = this.tree.preOrder();
+        long leaves = preOrder.stream().filter(Node::isLeaf).count();
+        System.out.printf(
+            "Tree Info:%n\tHeight: %d%n\tNodes: %d%n\tQuestions: %d%n\tAnswers: %d%n",
+            this.tree.getHeight(),
+            preOrder.size(),
+            preOrder.size() - leaves,
+            leaves
+        );
 
+        Node<String> current = this.tree.root;
+        int n = 0;
+        int count = 0;
+        while (!current.isLeaf()) { // Go down the path
+            boolean conf = this.confirm(current.value.replace("%", "%%"));
+            current = conf ? current.left : current.right;
+            n <<= 1;
+            n |= conf ? 1 : 0;
+            ++count;
+        }
+        System.out.printf("Output ID: %0" + count + "s%n", Integer.toBinaryString(n));
+        boolean wrong = !this.confirm("I guess %s, is this correct?", current.value);
+        if (wrong) {
+            var obj = this.prompt("What object were you thinking?");
+            if (obj.equalsIgnoreCase(current.value)) {
+                System.out.println("That's what I said!");
+                return;
+            }
+            var question = this.prompt("What question should be asked to tell them apart?");
+            var answer = this.confirm("To get to %s, would the player answer yes or no to %s", obj, question);
+            var currentVal = current.value;
+            current.value = question;
+            if (answer) {
+                current.left = new Node<>(obj);
+                current.right = new Node<>(currentVal);
+            } else {
+                current.left = new Node<>(currentVal);
+                current.right = new Node<>(obj);
+            }
+            System.out.printf("Updated the tree to ask %s, with Yes: '%s' and No: '%s'%n", question, current.left.value, current.right.value);
+        } else {
+            System.out.println("Nice!");
+        }
     }
 
-    public void save(PrintStream printStream) {
-        serializer.serialize(questionTree);
+    public void save() {
+        this.serializer.serialize(this.tree);
+    }
+
+    public String getInitialObject() {
+        System.out.println("There are no objects to guess in that questions file.");
+        return this.prompt("Can you provide me with an initial object?");
+    }
+
+    public boolean confirm(String str, Object... replacements) {
+        var s = this.prompt(str, replacements);
+        int attempts = 5;
+        while (--attempts > 0) {
+            if (YES.contains(s)) {
+                return true;
+            } else if (NO.contains(s)) {
+                return false;
+            }
+            System.out.printf("Invalid value (%d attempts remaining). Options: Yes: %s, No: %s%n", attempts, YES, NO);
+            s = this.prompt(str, replacements);
+        }
+        return false;
+    }
+
+    public String prompt(String str, Object... replacements) {
+        str = str.formatted(replacements);
+
+        System.out.printf("%s%n> ", str);
+        return this.userInput.nextLine();
     }
 }

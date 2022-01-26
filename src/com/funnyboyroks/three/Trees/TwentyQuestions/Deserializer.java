@@ -11,12 +11,8 @@ import java.util.NoSuchElementException;
 
 public class Deserializer {
 
-    private static final int LEFT = 1001;
-    private static final int RIGHT = 1002;
-    private static final int ROOT = 1003;
-    private static final int DOWN = 1004;
-
-    private final File file;
+    private final File               file;
+    private       Iterator<GameData> linesIterator; // lines iterator to help with recursion
 
     public Deserializer(String path) {
         this(new File(path));
@@ -26,28 +22,43 @@ public class Deserializer {
         this.file = file;
     }
 
-    private Iterator<GameData> linesIterator; // lines iterator to help with recursion
-
-    public BinaryTree<String> deserialize() {
-        List<GameData> lines = getLines();
+    public BinaryTree<String> deserialize() throws IOException {
+        if (!this.file.exists()) {
+            this.file.createNewFile();
+            return null;
+        }
+        List<GameData> lines = this.getLines();
+        System.out.println(lines);
         if (lines == null) return null;
         this.linesIterator = lines.iterator();
-        var tree = new BinaryTree<>(this.linesIterator.next().value);
-        generateTree(tree.root);
+        BinaryTree<String> tree = new BinaryTree<>(this.linesIterator.next().value);
+        this.generateTree(tree.root);
         return tree;
+    }
+
+    public BinaryTree<String> deserializeCatch() {
+        try {
+            return this.deserialize();
+        } catch (Exception ex) {
+            System.out.println("Error loading file " + this.file.getName());
+            ex.printStackTrace();
+            return null;
+        }
     }
 
     private void generateTree(Node<String> node) {
         try {
-            var next = this.linesIterator.next();
+            GameData next = this.linesIterator.next();
+            System.out.println(next);
             node.left = new Node<>(next.value);
             if (!next.leaf) {
-                generateTree(node.left);
+                this.generateTree(node.left);
             }
             next = this.linesIterator.next();
+            System.out.println(next);
             node.right = new Node<>(next.value);
             if (!next.leaf) {
-                generateTree(node.right);
+                this.generateTree(node.right);
             }
         } catch (NoSuchElementException ex) {
             throw new IllegalArgumentException("Invalid Tree Structure in File!", ex);
@@ -58,12 +69,12 @@ public class Deserializer {
         try {
             // One-liner, why not :)
             return Files.readString(this.file.toPath())
-                .replaceAll("([QA]):\n", "$1:§") // Convert from the format of A:\nValue to A:§Value
+                .replaceAll("([QA]):[\n\r]+", "$1:§") // Convert from the format of A:\nValue to A:§Value
                 .lines()
                 .map(l -> new GameData(l.substring(l.indexOf('§') + 1), l.toUpperCase().startsWith("A:")))
                 .toList();
         } catch (IOException ex) {
-            System.out.printf("Unable to load file %s.%n", file.getName());
+            System.out.printf("Unable to load file %s.%n", this.file.getName());
             ex.printStackTrace();
             return null;
         }
@@ -73,7 +84,7 @@ public class Deserializer {
 
         @Override
         public String toString() {
-            return (leaf ? "A: " : "Q: ") + value;
+            return (this.leaf ? "A: " : "Q: ") + this.value;
         }
     }
 }

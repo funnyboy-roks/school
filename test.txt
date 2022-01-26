@@ -1,6 +1,0 @@
-Q:
-Hello World
-A:
-Question 2 Test
-A:
-Answer Test

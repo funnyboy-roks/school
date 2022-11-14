@@ -9,7 +9,8 @@ DEBUG = False
 SETTLE_TIME = 2  # seconds to let the sensor settle
 CALIBRATIONS = 5  # number of calibration measurements to  take
 CALIBRATION_DELAY = 1  # seconds to delay in between calibration measurements
-TRIGGER_TIME = 0.00001  # seconds needed to trigger the sensor (to get a measurement)
+# seconds needed to trigger the sensor (to get a measurement)
+TRIGGER_TIME = 0.00001
 SPEED_OF_SOUND = 343  # speed of sound in m/s set the RPi to the Broadcom pin layout
 GPIO.setmode(GPIO.BCM)
 
@@ -32,22 +33,22 @@ def calibrate():
     # measure the distance to the object with the sensor
     # do this several times and get an average
     print('-Getting calibration measurements...')
-    distances = []
+    dist_avg = 0
     for i in range(CALIBRATIONS):
         distance = getDistance()
         if DEBUG:
             print(f'[DEBUG] Got {distance}cm')
-        distances.append(distance)
+        dist_avg += distance
         # delay a short time before using the sensor again
         sleep(CALIBRATION_DELAY)
         # calculate the average of the distances
-        distance_avg = sum(distances) / len(distances)
-        if DEBUG:
-            print(f'[DEBUG] Average is {distance_avg}cm')
-        # calculate the correction factor
-        correction_factor = known_distance / distance_avg
-        if DEBUG:
-            print(f'[DEBUG] Correction factor is {correction_factor}')
+    dist_avg /= CALIBRATIONS
+    if DEBUG:
+        print(f'[DEBUG] Average is {distance_avg}cm')
+    # calculate the correction factor
+    correction_factor = known_distance / distance_avg
+    if DEBUG:
+        print(f'[DEBUG] Correction factor is {correction_factor}')
     print('Done.')
     print()
     return correction_factor
@@ -81,12 +82,14 @@ def getDistance():
     distance *= 100
     return distance
 
-def insert_sorted(num, l: list):
-    for i, n in enumerate(l):
-        if n > num:
-            l.insert(i, num)
-            return
-    l.append(num)
+
+def sort_list(l):
+    for i in range(len(l)):
+        min_i = i
+        for j in range(i + 1, len(l)):
+            if l[j] < l[min_i]:
+                min_i = j
+        (l[i], l[min_i]) = (l[min_i], l[i])
 
 
 ########
@@ -101,8 +104,7 @@ correction_factor = calibrate()
 # then, measure
 input('Press enter to begin...')
 print('Getting measurements:')
-unsorted_dists = []
-sorted_dists = []
+dists = []
 while True:
     # get the distance to an object and correct it with the
     # correction factor
@@ -111,16 +113,16 @@ while True:
     sleep(1)
     # and round to four decimal places
     distance = round(distance, 4)
-    unsorted_dists.append(distance)
-    insert_sorted(distance, sorted_dists)
+    dists.append(distance)
     # display the distance measured/calculated
     print(f'--Distance measured: {distance}cm')
-    
+
     i = input('--Get another measurement (Y/n)? ')
     if not i in ['y', 'Y', 'yes', 'Yes', 'YES', '']:
         break
 # finally, cleanup the GPIO pins
-print(f'Unsorted List:\n{unsorted_dists}')
-print(f'Sorted List:\n{sorted_dists}')
+print(f'Unsorted List:\n{dists}')
+sort_list(dists)
+print(f'Sorted List:\n{dists}')
 print('Done.')
 GPIO.cleanup()

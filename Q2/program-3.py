@@ -36,7 +36,7 @@ class Patient:
     
     @weight.setter
     def weight(self, weight):
-        return 1400 if weight > 1400 else 0 if weight < 0 else weight
+        self.weight = 1400 if weight > 1400 else 0 if weight < 0 else weight
     
     def increaseAge(self):
         self._age += 1

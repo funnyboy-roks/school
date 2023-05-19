@@ -8,6 +8,7 @@ use std::collections::{HashMap, HashSet};
 use std::fmt::{Debug, Display};
 use std::io::{stdin, stdout, Write};
 
+/// Represents an in the room
 #[derive(Clone)]
 enum Item {
     Normal(&'static str, &'static str),
@@ -16,6 +17,7 @@ enum Item {
 
 impl Display for Item {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        // Just print the name
         write!(
             f,
             "{}",
@@ -28,11 +30,13 @@ impl Display for Item {
 }
 
 impl Debug for Item {
+    // Just use the Display format
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self)
     }
 }
 
+/// Represents the direction of a door
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 enum Direction {
     North,
@@ -54,6 +58,7 @@ impl From<&str> for Direction {
     }
 }
 
+/// Represents a room
 #[derive(Debug, Clone, Default)]
 struct Room {
     items: HashMap<String, Item>,
@@ -73,12 +78,14 @@ impl Room {
     }
 
     fn add_item(&mut self, item: Item) {
+        // Figure out the name based on the enum
         let name = match item {
             Item::Normal(n, _) => n,
             Item::Grabbable(n) => n,
         }
         .into();
 
+        // add the item
         self.items.insert(name, item);
     }
 
@@ -96,19 +103,19 @@ impl Display for Room {
         write!(
             f,
             "{}\nExits: {:?}\nItems: {:?}\nGrabbable Items: {:?}",
-            self.name,
-            self.exits
+            self.name, // The name of hte room
+            self.exits // Exit directions + Deaths directions
                 .keys()
                 .chain(self.deaths.iter())
                 .collect::<Vec<_>>(),
-            self.items
+            self.items // Items mapped to their names (excluding grabbables)
                 .values()
                 .filter_map(|item| match item {
                     Item::Normal(name, _) => Some(*name),
                     Item::Grabbable(_) => None,
                 })
                 .collect::<Vec<&str>>(),
-            self.items
+            self.items // Items mapped to their names (excluding normals)
                 .values()
                 .filter_map(|item| match item {
                     Item::Normal(_, _) => None,
@@ -119,6 +126,7 @@ impl Display for Room {
     }
 }
 
+/// Represents a user command
 #[derive(Debug, Clone)]
 enum Command {
     Go(String),
@@ -133,6 +141,7 @@ impl Command {
         let (cmd, rest) = cmd.trim().split_once(" ")?;
         let rest = rest.into();
 
+        // comparse the command (lowercase) to the options, otherwise none
         match &*cmd.to_lowercase() {
             "go" | "cd" => Some(Self::Go(rest)),
             "look" | "ls" | "ll" => Some(Self::Look(rest)),
@@ -143,10 +152,14 @@ impl Command {
     }
 }
 
+/// Represents the game
 #[derive(Debug, Clone)]
 struct Game {
+    /// The room which the player is currently in
     current_room: Option<String>,
+    /// The rooms
     rooms: HashMap<String, Room>,
+    /// The player's inventory
     inventory: Vec<Item>,
 }
 
@@ -162,14 +175,15 @@ impl Game {
     fn print_status(&self) {
         println!(
             "Room: {}\nInventory: {:?}",
-            self.rooms[&self.current_room.clone().unwrap()],
+            self.rooms[&self.current_room.clone().unwrap()], // This shouldn't throw if we ensure
+            // that self.current_room != None
             self.inventory
                 .iter()
                 .map(|item| format!("{:?}", item))
                 .collect::<Vec<_>>(),
         );
         print!("> ");
-        stdout().flush().unwrap();
+        stdout().flush().unwrap(); // flush because `print!` doesn't
     }
 
     fn start(&mut self) {
@@ -179,6 +193,7 @@ impl Game {
             let line = line.expect("Invalid stdin");
             let cmd = Command::parse(&line);
 
+            // this shouldn't run, but it's backup
             if self.current_room.is_none() {
                 println!("Du bist tot ☠️");
                 return;
@@ -188,17 +203,23 @@ impl Game {
             let response: String;
             if let Some(cmd) = cmd {
                 let room = self.rooms.get_mut(&self.current_room.clone().unwrap());
+
+                // exit now, so that we can assume the room exists
                 if let Command::Quit = cmd {
                     println!("Thank you for playing!");
                     return;
                 }
+
                 let room = room.unwrap();
+
                 match cmd {
                     Command::Go(cmd) => {
                         if let Some(room) = room.exits.get(&Direction::from(&*cmd)) {
+                            // If it's an exit
                             self.current_room = Some(room.into());
                             response = "Room changed".into();
                         } else if room.deaths.contains(&Direction::from(&*cmd)) {
+                            // If it's a death room
                             self.current_room = None;
                             response = "Room changed".into();
                         } else {
@@ -209,6 +230,7 @@ impl Game {
                         if let Some(Item::Normal(name, desc)) =
                             room.items.get(&cmd).map(|n| n.clone())
                         {
+                            // The item exists, so describe it
                             response = format!("{}: {}", name, desc);
                         } else {
                             response = "Item Not Found".into();
@@ -217,6 +239,7 @@ impl Game {
                     Command::Take(cmd) => {
                         if let Some(Item::Grabbable(name)) = room.items.get(&cmd).map(|n| n.clone())
                         {
+                            // Item is there, so take it
                             self.inventory.push(Item::Grabbable(name));
                             room.items.remove(name);
                             response = format!("Took {}", name);
@@ -231,6 +254,7 @@ impl Game {
             } else {
                 response = "Invalid input.".into();
             }
+            // Print the response
             println!("{}\n", response);
             if self.current_room.is_none() {
                 println!("Du bist tot ☠️");
@@ -243,6 +267,13 @@ impl Game {
     fn gen_rooms() -> HashMap<String, Room> {
         let mut rooms = HashMap::new();
 
+        // Unfortunately, Rust's borrow checker is not a big fan of graphs without funky shit, so
+        // I did a minor work around, where rather than having edges directly between the rooms,
+        // each room is labelled in some way; "room1", "room2", etc and each exit maps to a room
+        // name, like:
+        //     East => room2
+        //     South => room3
+        //     ...
         rooms.insert("room1".into(), Room::new("Room 1".into()));
         rooms.insert("room2".into(), Room::new("Room 2".into()));
         rooms.insert("room3".into(), Room::new("Room 3".into()));

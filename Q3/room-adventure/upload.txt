@@ -1,0 +1,7 @@
+Since there's a few files, I'm just linking to the GH repo.  The GH
+feature on gradescope is kind of annoying because it requires a separate
+repo/branch.
+
+Let me know if you have any problems viewing the codestuffs.
+
+Repo:  https://github.com/funnyboy-roks/school/tree/2022-2023/Q3/room-adventure

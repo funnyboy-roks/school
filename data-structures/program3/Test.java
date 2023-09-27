@@ -29,6 +29,7 @@ public class Test {
         l.add('c');
         testToString();
         l.sort();
+        System.out.print("Sorted: ");
         testToString();
 
         System.out.printf("indexOf('a') = %s\n", l.indexOf('a'));

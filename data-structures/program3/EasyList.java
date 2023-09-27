@@ -36,22 +36,6 @@ public class EasyList extends AbstractEasyList {
 		return this.end;
 	}
 
-    private static char[] subArr(char[] arr, int len) {
-        char[] out = new char[len];
-        for (int i = len; --i >= 0;) {
-            out[i] = arr[i];
-        }
-        return out;
-    }
-
-    private static String[] toStringArr(char[] arr) {
-        String[] out = new String[arr.length];
-        for(int i = arr.length; --i >= 0;) {
-            out[i] = arr[i] + "";
-        }
-        return out;
-    }
-
 	/**
 	 * Returns a String representation of the list ("NULL" if empty)
 	 * @return 		String representation of list
@@ -59,15 +43,11 @@ public class EasyList extends AbstractEasyList {
     @Override
 	public String toString() {
         if (this.end != 0) {
-            // Form the String
-            StringBuilder sb = new StringBuilder();
+            String out = "";
             for(int i = 0; i < this.end; ++i) {
-                sb.append(this.list[i]);
-                if (i != this.end - 1) {
-                    sb.append(", ");
-                }
+                out += this.list[i] + " ";
             }
-            return "[" + sb + "]";
+            return out;
         }
         return "NULL";
 	}
@@ -156,21 +136,14 @@ public class EasyList extends AbstractEasyList {
 	}
 
 	/**
-	 * Sorts the list in ascending order using bubble sort.
+	 * Sorts the list in ascending order using insertion sort.
 	 */
 	public void sort() {
-        boolean swapped = true;
-        while (swapped) {
-            swapped = false;
-            for(int i = this.end; --i >= 1;) {
-                if (this.list[i - 1] > this.list[i]) {
-                    // Swap the numbers
-                    var c = this.list[i - 1];
-                    this.list[i - 1] = this.list[i];
-                    this.list[i] = c;
-
-                    swapped = true;
-                }
+        char c;
+        for (int i = 1; i < this.end; ++i) {
+            for (int j = i; j > 0 && this.list[j - 1] > this.list[j]; this.list[--j] = c) {
+                c = this.list[j];
+                this.list[j] = this.list[j - 1];
             }
         }
 	}

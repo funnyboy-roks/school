@@ -126,7 +126,7 @@ public class EasyList extends AbstractEasyList {
 	 * @return 		the index of element, or -1 if it doesn't exist
 	 */
 	public int indexOf(char elt) {
-        for (int i = this.end + 1; --i >= 0;) {
+        for (int i = this.end; i-- > 0;) {
             if (elt == this.list[i]) {
                 return i;
             }

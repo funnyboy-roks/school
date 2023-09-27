@@ -1,1 +1,10 @@
-**/*.class
+# Ignore everything
+*
+# Unignore all with extensions
+!*.*
+# Unignore all dirs
+!*/
+
+
+# Java stuff
+*.class

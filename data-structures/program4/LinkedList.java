@@ -20,7 +20,11 @@ public class LinkedList<T> extends AbstractLinkedList<T> {
 	 * @param 			l - the linked list being copied from
 	 */
 	public LinkedList(LinkedList<T> l) {
-		// TO-DO: Implement for program 04
+        this();
+        // read all values from `l` and add them to this
+        for (int i = 0, c = l.size(); i < c; ++i) {
+            this.add(l.get(i));
+        }
 	}
 
 	/**
@@ -28,11 +32,14 @@ public class LinkedList<T> extends AbstractLinkedList<T> {
 	 * @return 			String representation of the linked list
 	 */
 	public String toString() {
+        // early return if there is no value
         if (this.head == null) {
             return "NULL";
         }
+
         StringBuilder sb = new StringBuilder();
         Node<T> next = this.head;
+        // loop over each node, adding it to the string
         do {
             sb.append(next.getData());
             sb.append(' ');
@@ -92,13 +99,20 @@ public class LinkedList<T> extends AbstractLinkedList<T> {
 	 * @param 			element - element to add to the linked list
 	 */
 	public void add(T elt) {
+        // Ignore if the list is full
+        if (this.size() >= LinkedList.MAX_SIZE) {
+            return;
+        }
+
         Node<T> n = new Node<>();
         n.setData(elt);
-        if (this.tail == null) {
+        if (this.tail == null) { // if the list is empty, set the head/tail to the new node
             this.head = this.tail = n;
         } else {
+            // Otherwise, link from the old tail and update the tail
             this.tail.setLink(this.tail = n);
         }
+        ++this.numElements;
 	}
 
 	/**
@@ -107,9 +121,42 @@ public class LinkedList<T> extends AbstractLinkedList<T> {
 	 * @param 			element - element to add to the linked list
 	 */
 	public void add(int index, T elt) {
-        //Node<T> n = new Node<>();
-        //n.setData(elt);
-        //this.tail.setLink(this.tail = n);
+        // Check bounds
+        if (index < 0 || index > this.size() || this.size() >= LinkedList.MAX_SIZE) {
+            return;
+        }
+
+        // If adding to the head, update the head
+        if (index == 0) {
+            Node<T> newN = new Node<>();
+            newN.setData(elt);
+            newN.setLink(this.head);
+            this.head = newN;
+            ++this.numElements;
+            return;
+        }
+
+        // If we're adding to the end, use the standard add method
+        if (index == this.size()) {
+            this.add(elt);
+            return;
+        }
+
+        // Jump to the node before the one to be added
+        Node<T> n = this.head;
+        for(int i = index - 1; i-- > 0 && n != null; n = n.getLink());
+
+        if (n == null) {
+            return;
+        }
+
+        // Do the magic to point the node to the new one and the new one to the next one
+        Node<T> newN = new Node<>();
+        newN.setData(elt);
+        newN.setLink(n.getLink());
+        n.setLink(newN);
+
+        ++this.numElements;
 	}
 
 	/**
@@ -118,8 +165,10 @@ public class LinkedList<T> extends AbstractLinkedList<T> {
 	 * @return 			the element at index
 	 */
 	public T get(int index) {
+        // Jump to the node that has been requested
         Node<T> n = this.head;
         for(int i = index; i-- > 0 && n != null; n = n.getLink());
+
         return n == null ? null : n.getData();
 	}
 
@@ -128,6 +177,7 @@ public class LinkedList<T> extends AbstractLinkedList<T> {
 	 * @return 			the value in the head node
 	 */
 	public T getFirst() {
+        // Get the data of the head, if it is set
 		return this.head == null ? null : this.head.getData();
 	}
 
@@ -136,6 +186,7 @@ public class LinkedList<T> extends AbstractLinkedList<T> {
 	 * @return 			the value in the tail node
 	 */
 	public T getLast() {
+        // Get the data of the tail, if it is set
 		return this.tail == null ? null : this.tail.getData();
 	}
 
@@ -145,8 +196,32 @@ public class LinkedList<T> extends AbstractLinkedList<T> {
 	 * @param			index - the position in the list of the element to be removed
 	 */
 	public void remove(int index) {
+        // Check bounds
+        if (index < 0 || index >= this.size()) {
+            return;
+        }
+
+        // If it's the head, point this.head at the new head
+        if (index == 0) {
+            if ((this.head = this.head.getLink()) == null) {
+                // if the last element was removed, fix the tail
+                this.tail = null;
+            }
+            --this.numElements;
+            return;
+        }
+
+        // Jump to the node before the one being removed
         Node<T> n = this.head;
-        for(int i = index; i-- > 0 && n != null; n = n.getLink());
+        for(int i = index - 1; i-- > 0 && n != null; n = n.getLink());
+
+        if (n == null) {
+            return;
+        }
+
+        // Update the reference
+        n.setLink(n.getLink().getLink());
+        --this.numElements;
 	}
 
 	/**
@@ -155,7 +230,17 @@ public class LinkedList<T> extends AbstractLinkedList<T> {
 	 * @param			element - the element to replace the current element at index
 	 */
 	public void set(int index, T element) {
-		// TO-DO: Complete for Program 04
+        // Check bounds
+        if (index < 0 || index >= this.size() || this.size() >= LinkedList.MAX_SIZE) {
+            return;
+        }
+
+        // Jump to the node that is being set
+        Node<T> n = this.head;
+        for(int i = index; i-- > 0 && n != null; n = n.getLink());
+
+        // Set the data
+        n.setData(element);
 	}
 
 	/**
@@ -167,6 +252,7 @@ public class LinkedList<T> extends AbstractLinkedList<T> {
 	public int indexOf(T element) {
         Node<T> next = this.head;
         int i = 0;
+        // loop over nodes until we hit the one that we're looking for
         do {
             if (java.util.Objects.equals(next.getData(), element)) {
                 return i;

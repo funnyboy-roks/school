@@ -1,3 +1,10 @@
+// q1 answer: find /usr/bin -name '*' | tee >(less) >(wc -l)
+
+/**
+ * Name: Hayden Pott
+ * Date: 30 Sept 2023
+ * Desc: Print the tokens of a command
+ */
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>

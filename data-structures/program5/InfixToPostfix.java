@@ -31,15 +31,15 @@ public class InfixToPostfix extends AbstractInfixToPostfix {
      */
     public int infixOpRank(String operator) {
         if (operator == null) return 0;
-        return switch (operator) {
-            case "(" -> 4;
-            case "^" -> 3;
-            case "*" -> 2;
-            case "/" -> 2;
-            case "+" -> 1;
-            case "-" -> 1;
-            default -> 0;
-        };
+        switch (operator) {
+            case "(": return 4;
+            case "^": return 3;
+            case "*": return 2;
+            case "/": return 2;
+            case "+": return 1;
+            case "-": return 1;
+            default: return 0;
+        }
     }
 
     /**
@@ -49,14 +49,14 @@ public class InfixToPostfix extends AbstractInfixToPostfix {
      */
     public int opStackRank(String operator) {
         if (operator == null) return 0;
-        return switch (operator) {
-            case "^" -> 2;
-            case "*" -> 2;
-            case "/" -> 2;
-            case "+" -> 1;
-            case "-" -> 1;
-            default -> 0;
-        };
+        switch (operator) {
+            case "^": return 2;
+            case "*": return 2;
+            case "/": return 2;
+            case "+": return 1;
+            case "-": return 1;
+            default: return 0;
+        }
     }
 
     /**
@@ -92,14 +92,26 @@ public class InfixToPostfix extends AbstractInfixToPostfix {
             } else {
                 int arg2 = Integer.parseInt(s.pop());
                 int arg1 = Integer.parseInt(s.pop());
-                s.push("" + switch (tok) {
-                    case "+" -> arg1 + arg2;
-                    case "-" -> arg1 - arg2;
-                    case "/" -> arg1 / arg2;
-                    case "*" -> arg1 * arg2;
-                    case "^" -> (int) Math.pow(arg1, arg2);
-                    default -> throw new RuntimeException("Unreachable");
-                });
+                int res;
+                switch (tok) {
+                    case "+":
+                        res = arg1 + arg2;
+                        break;
+                    case "-":
+                        res = arg1 - arg2;
+                        break;
+                    case "/":
+                        res = arg1 / arg2;
+                        break;
+                    case "*":
+                        res = arg1 * arg2;
+                        break;
+                    case "^":
+                        res = (int) Math.pow(arg1, arg2);
+                        break;
+                    default: throw new RuntimeException("Unreachable");
+                }
+                s.push(res + "");
             }
         }
     	return s.pop();
@@ -119,16 +131,21 @@ public class InfixToPostfix extends AbstractInfixToPostfix {
         String tok;
         do {
             switch (tok = in.dequeue()) {
-                case ")" -> {
+                case ")":
                     for (String op = ops.pop(); !op.equals("("); op = ops.pop()) pf.enqueue(op);
-                }
-                case "^", "*", "/", "+", "-", "(" -> {
+                    break;
+                case "^":
+                case "*":
+                case "/":
+                case "+":
+                case "-":
+                case "(":
                     for (String op = ops.peek(); opStackRank(op) >= infixOpRank(tok); op = ops.peek()) pf.enqueue(ops.pop());
                     ops.push(tok);
-                }
-                default -> {
+                    break;
+                default:
                     pf.enqueue(tok);
-                }
+                    break;
             }
         } while (!in.isEmpty());
 

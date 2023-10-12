@@ -35,6 +35,7 @@ public class Test {
             "1 * 2 + 3",
             "1 + 2 * ( 3 ^ 4 - 5 ) ^ ( 6 + 7 * 8 ) - 9",
             "2 ^ 3 ^ 2",
+            "a - b - c * ( d + e / f - g ) - h",
         };
 
         String[] solus2 = {
@@ -42,6 +43,7 @@ public class Test {
             "1 2 * 3 +",
             "1 2 3 4 ^ 5 - 6 7 8 * + ^ * + 9 -",
             "2 3 2 ^ ^",
+            "",
         };
 
         int[] solvs2 = {
@@ -49,6 +51,7 @@ public class Test {
             1 * 2 + 3,
             1 + 2 * (int) Math.pow(( Math.pow(3, 4) - 5 ), ( 6 + 7 * 8 )) - 9,
             (int) Math.pow(2, Math.pow(3, 2)),
+            0,
         };
 
         for (int i = exprs2.length; i-- > 0; ) {

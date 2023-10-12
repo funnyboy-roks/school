@@ -1,7 +1,7 @@
 /*
-Name:		[Your Name Here]
-Date:		[Current Date Here]
-Course:		CSC 220 - Data Structures
+Name:   Hayden Pott
+Date:   11 Oct 2023
+Course: CSC 220 - Data Structures
 */
 public class InfixToPostfix extends AbstractInfixToPostfix {
     /**

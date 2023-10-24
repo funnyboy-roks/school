@@ -1,0 +1,13 @@
+Name: Hayden Pott
+The program works by repeatedly prompting for user input and then
+splitting that on spaces, determining what the first argument is and
+whether it needs to find that on the path.  If it does, then it searches
+every path element for the binary with the name given and if it finds
+it, then it will execute it.  It then passes each arg to be executed
+using the reset of the args passed.  If one of the args is '>',
+then the next arg is interpreted to be the output file, the same thing
+happens with '<' except for input.
+
+If there is a src(in) or dst(out) file, when the program forks, it
+replaces its STDIN with the src and/or STDOUT with dst before calling
+the binary.

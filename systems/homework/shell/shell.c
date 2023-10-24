@@ -1,9 +1,11 @@
 /**
  * Name: Hayden Pott
- * Date: 23 Okt 2023
- * Description: **Include what you were and were not able to handle!**
- *
- *
+ * Date: 23. Okt 2023
+ * Description: Not really that difficult, didn't really struggle with anything.
+ * I quite enjoyed working on this. I think that I don't need the `find_exec`
+ * fn, but I kind of just wanted to implement it.  I did impl a `cd` fn that
+ * used an array as a stack and did dynamic resizing, but I still needed the
+ * `chdir` fn to actually change the working dir for the bin.
  */
 
 #include <dirent.h>
@@ -15,7 +17,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#define DBG 1
+#define DBG 0
 
 #define dbg(a) if (DBG) { printf("DBG: "); printf(a); printf("\n"); }
 
@@ -67,25 +69,27 @@ char *find_exec(char *exec) {
     if (DBG) printf("DBG: exec = %s\n", exec);
     int execlen = strlen(exec);
     char *PATH = getenv("PATH");
-    // TODO: use my own version of strok such that I don't need copy this string
-    char *path = strdup(PATH);
-    for (char *t; t = strtok(path, ":"); path = NULL) { // loop over ever elt in the $PATH
-        if (DBG) printf("DBG: \tpath elt = %s\n", t);
-
-        int tlen = strlen(t);
+    // NOTE: Not using strtok here so that I don't have to copy PATH.
+    int l;
+    for (char *p = PATH, *e = strchr(p, ':'); e; e = strchr(p = e + 1, ':')) { // loop over ever elt in the $PATH
         // Create a string that is long enough: (len of path) + (len of bin) + '/'? + '\0'
-        char *full_path = malloc(tlen + execlen + 1 + (t[tlen - 1] != '/'));
+        char *full_path = malloc((l = e - p) + execlen + (*(e - 1) != '/') + 1);
 
-        strcat(full_path, t);
-        if (full_path[tlen - 1] != '/') strcat(full_path, "/");
+        // Copy the bin name into the full_path str (l = len of path element)
+        strncpy(full_path, p, l);
+
+        // add the '/' if the path elt does not have it
+        if (*(e - 1) != '/') strcat(full_path, "/");
+
+        // append the name of the bin
         strcat(full_path, exec);
 
         // at this point, full_path is something like `/usr/bin/cat`
 
-        struct stat st;
         if (DBG) printf("DBG: full_path = %s\n", full_path);
 
         // check if the path exists and is executable
+        struct stat st;
         if (!stat(full_path, &st) && st.st_mode & S_IEXEC) {
             return full_path;
         }
@@ -125,6 +129,9 @@ int handle_cmd(char** argv, int argc) {
             cd(argv[1]);
         }
         return 1;
+    } else if (!strcmp(argv[0], "exit")) { // exit
+        exit(0);
+        return 1;
     }
     return 0;
 }
@@ -134,7 +141,7 @@ int main(int argc, char *argv[]) {
 
     char *line = malloc(size), *line2, *user_cmd;
     while (1) {
-        // why not have a pretty prompt?
+        // why not have a pretty prompt? (totally not the exact format of my own)
         printf("\033[0;34m%s \033[0;35m❯ \033[0m", formatted_cwd());
         int len = getline(&line, &size, stdin); // readline
         if (len == -1) break;
@@ -142,7 +149,7 @@ int main(int argc, char *argv[]) {
         line[--len] = '\0'; // remove trail newline
 
         for(;line[0] == ' '; ++line, --len); // Remove leading spaces
-        for(;line[len] == ' '; line[len] = '\0'); // Remove trailing spaces
+        for(;line[len] == ' '; line[len--] = '\0'); // Remove trailing spaces
 
         // Skip blank lines
         if (len == 0) continue;
@@ -173,7 +180,7 @@ int main(int argc, char *argv[]) {
             if (t[0] == '>') next_dst = 1;
             if (t[0] == '<') next_src = 1;
 
-            if (!dst_file && !src_file) args[i++] = strdup(t);
+            if (!dst_file && !src_file) args[i++] = t;
         }
 
         if (dst_file || src_file) {

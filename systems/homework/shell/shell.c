@@ -17,9 +17,9 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#define DBG 0
+#define DBG 1
 
-#define dbg(a) if (DBG) { printf("DBG: "); printf(a); printf("\n"); }
+#define dbg(...) if (DBG) { fprintf(stderr, "DBG: "); fprintf(stderr, __VA_ARGS__); fprintf(stderr, "\n"); }
 
 /**
  * Get CWD with s/$HOME/~
@@ -66,7 +66,7 @@ int cd(char *path) {
  * search $PATH for an executable and return the full path when it is found
  */
 char *find_exec(char *exec) {
-    if (DBG) printf("DBG: exec = %s\n", exec);
+    dbg("exec = %s", exec);
     int execlen = strlen(exec);
     char *PATH = getenv("PATH");
     // NOTE: Not using strtok here so that I don't have to copy PATH.
@@ -86,7 +86,7 @@ char *find_exec(char *exec) {
 
         // at this point, full_path is something like `/usr/bin/cat`
 
-        if (DBG) printf("DBG: full_path = %s\n", full_path);
+        dbg("full_path = %s", full_path);
 
         // check if the path exists and is executable
         struct stat st;
@@ -102,6 +102,8 @@ char *find_exec(char *exec) {
 
 /**
  * Check if a path is absolute or relative (for a bin)
+ *
+ * Just whether it starts with "./" or '/'
  */
 char is_relative_or_absolute(char *path) {
     int len = strlen(path);
@@ -120,7 +122,7 @@ char is_relative_or_absolute(char *path) {
  * returns 1 if the command existed and was handled, 0 if it did not exist.
  */
 int handle_cmd(char** argv, int argc) {
-    if (DBG) printf("DBG: argc = %d\n", argc);
+    dbg("argc = %d", argc);
 
     if (!strcmp(argv[0], "cd")) { // cd <path>
         if (argc != 2) {
@@ -162,7 +164,7 @@ int main(int argc, char *argv[]) {
 
         // Create a new pointer to line that we can manipulate
         line2 = line;
-        if (DBG) printf("DBG: argc = %d\n", argc);
+        dbg("argc = %d", argc);
 
         char *dst_file = NULL;
         char *src_file = NULL;
@@ -172,7 +174,7 @@ int main(int argc, char *argv[]) {
         int i = 0;
         // loop over each arg and
         for (char *t; t = strtok(line2, " "); line2 = NULL) {
-            if (DBG) printf("DBG: \t%s\n", t);
+            dbg("\t%s", t);
 
             if (!dst_file && next_dst) dst_file = t;
             if (!src_file && next_src) src_file = t;
@@ -188,7 +190,7 @@ int main(int argc, char *argv[]) {
         }
 
         user_cmd = args[0];
-        if (DBG) printf("DBG: user_cmd = %s\n", user_cmd);
+        dbg("user_cmd = %s", user_cmd);
 
         // Try to handle built-ins
         if (handle_cmd(args, argc)) {
@@ -199,10 +201,10 @@ int main(int argc, char *argv[]) {
         if (!is_relative_or_absolute(args[0])) {
             // Change args[0] to be the properly qualified path
             args[0] = find_exec(user_cmd);
-            if (DBG) printf("DBG: exec = %s\n", args[0]);
+            dbg("exec = %s", args[0]);
         }
 
-        if (DBG) printf("DBG: args[0] = %s\n", args[0]);
+        dbg("args[0] = %s", args[0]);
 
         // If the args[0] is unknown, let the user know
         if (args[0] == NULL) {
@@ -216,7 +218,7 @@ int main(int argc, char *argv[]) {
         // now, exec the command
         int pid = fork();
         if (pid == 0) {
-            if (DBG) printf("DBG: FORK: src_file = %s\n", src_file);
+            dbg("FORK: src_file = %s", src_file);
             FILE *src, *dst;
             if (src_file) { // open the src file if we're supposed to 
                 src = fopen(src_file, "r");
@@ -224,7 +226,7 @@ int main(int argc, char *argv[]) {
                     perror("Can't open file for reading");
                     return 1;
                 }
-                if (DBG) printf("DBG: FORK: src = %p\n", src);
+                dbg("FORK: src = %p", src);
                 dup2(fileno(src), 0);
             }
             if (dst_file) { // open the dst file if we're supposed to 

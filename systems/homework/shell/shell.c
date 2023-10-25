@@ -15,6 +15,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
+#include <time.h>
 #include <unistd.h>
 
 #define DBG 1
@@ -138,13 +139,36 @@ int handle_cmd(char** argv, int argc) {
     return 0;
 }
 
+char *format_time(unsigned int seconds) {
+    int size = 32;
+    char *out = malloc(size);
+    int minutes = seconds / 60;
+    seconds %= 60;
+    int hours = minutes / 60;
+    minutes %= 60;
+    char *p = out;
+    if (hours > 0) {
+        p += sprintf(p, "%dh ", hours);
+    }
+    if (minutes > 0) {
+        p += sprintf(p, "%dm ", minutes);
+    }
+    if (seconds > 0) {
+        p += sprintf(p, "%ds ", seconds);
+    }
+    return out;
+}
+
+
 int main(int argc, char *argv[]) {
     size_t size = 255;
 
     char *line = malloc(size), *line2, *user_cmd;
+    unsigned int last_exec_time;
     while (1) {
+        dbg("%d", last_exec_time);
         // why not have a pretty prompt? (totally not the exact format of my own)
-        printf("\033[0;34m%s \033[0;35m❯ \033[0m", formatted_cwd());
+        printf("\033[0;34m%s \033[0;33m%s\033[0;35m❯ \033[0m", formatted_cwd(), last_exec_time < 5 ? "" : format_time(last_exec_time));
         int len = getline(&line, &size, stdin); // readline
         if (len == -1) break;
 
@@ -216,6 +240,7 @@ int main(int argc, char *argv[]) {
         args[argc] = NULL;
 
         // now, exec the command
+        int start = time(NULL);
         int pid = fork();
         if (pid == 0) {
             dbg("FORK: src_file = %s", src_file);
@@ -248,6 +273,7 @@ int main(int argc, char *argv[]) {
             continue;
         }
         wait(NULL);
+        last_exec_time = time(NULL) - start;
     }
 
     free(line);

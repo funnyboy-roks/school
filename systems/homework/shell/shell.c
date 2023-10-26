@@ -26,7 +26,7 @@
  * Get CWD with s/$HOME/~
  */
 char *formatted_cwd() {
-    char *cwd = getcwd(NULL, 2048);
+    char *cwd = getcwd(NULL, 0);
 
     char *home = getenv("HOME");
     int l;
@@ -47,7 +47,7 @@ char *formatted_cwd() {
  */
 int cd(char *path) {
     int l;
-    if ((l = strlen(path)) == 0) return 1;
+    if ((l = strnlen(path, 2)) == 0) return 1;
 
     // If the path starts with ~ or ~/, cd to the home first
     if (path[0] == '~' && (l == 1 || l >= 2 && path[1] == '/')) {
@@ -56,11 +56,20 @@ int cd(char *path) {
     }
 
     // Change dir if the path is not empty
-    if (strlen(path) > 0 && chdir(path)) {
+    if (path[0] != '\0' && chdir(path)) {
         perror("Changing directory");
         return -1;
     }
     return 0;
+}
+
+int max_len(char *str, char delim) {
+    int max = -1;
+    int n;
+    for (char *p = str, *e = strchr(p, delim); e; e = strchr(p = e + 1, delim)) { // loop over ever elt in the $PATH
+        if ((n = e - p) > max) max = n;
+    }
+    return max;
 }
 
 /**
@@ -68,22 +77,26 @@ int cd(char *path) {
  */
 char *find_exec(char *exec) {
     dbg("exec = %s", exec);
-    int execlen = strlen(exec);
     char *PATH = getenv("PATH");
-    // NOTE: Not using strtok here so that I don't have to copy PATH.
+    int max_elt_len = max_len(PATH, ':');
+    // Create a string that is long enough:
+    //                       (len of path) + (len of bin)  + '/'? + '\0'
+    char *full_path = malloc( max_elt_len  + strlen(exec) +  1   +  1  );
     int l;
-    for (char *p = PATH, *e = strchr(p, ':'); e; e = strchr(p = e + 1, ':')) { // loop over ever elt in the $PATH
-        // Create a string that is long enough: (len of path) + (len of bin) + '/'? + '\0'
-        char *full_path = malloc((l = e - p) + execlen + (*(e - 1) != '/') + 1);
 
-        // Copy the bin name into the full_path str (l = len of path element)
-        strncpy(full_path, p, l);
+    // NOTE: Not using strtok here so that I don't have to copy PATH.
+    for (char *p = PATH, *e = strchr(p, ':'); e; e = strchr(p = e + 2, ':')) { // loop over ever elt in the $PATH
+        // Copy the elt into the full_path str (l = len of path elt)
+        strncpy(full_path, p, l = e - p);
+        full_path[l] = '\0'; // Since we're reusing the string, we need to manually set the end
+        p = full_path; // reuse p to point to the end of the partial string, so we can add directly
+        p += l;
 
         // add the '/' if the path elt does not have it
-        if (*(e - 1) != '/') strcat(full_path, "/");
+        if (*--e != '/') *p++ = '/';
 
         // append the name of the bin
-        strcat(full_path, exec);
+        strcpy(p, exec);
 
         // at this point, full_path is something like `/usr/bin/cat`
 
@@ -107,7 +120,7 @@ char *find_exec(char *exec) {
  * Just whether it starts with "./" or '/'
  */
 char is_relative_or_absolute(char *path) {
-    int len = strlen(path);
+    int len = strnlen(path, 3);
     if (len == 0) return 0;
     switch(path[0]) {
         case '.': 
@@ -187,7 +200,6 @@ int main(int argc, char *argv[]) {
         char *args[argc + 1];
 
         // Create a new pointer to line that we can manipulate
-        line2 = line;
         dbg("argc = %d", argc);
 
         char *dst_file = NULL;
@@ -197,7 +209,7 @@ int main(int argc, char *argv[]) {
         char next_src = 0;
         int i = 0;
         // loop over each arg and
-        for (char *t; t = strtok(line2, " "); line2 = NULL) {
+        for (char *t = line; t = strtok(t, " "); t = NULL) {
             dbg("\t%s", t);
 
             if (!dst_file && next_dst) dst_file = t;

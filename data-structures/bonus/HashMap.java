@@ -1,21 +1,39 @@
-/*
-Name:    Hayden Pott
-Date:    03 Nov 2023
-Course:  CSC 220 - Data Structures
-*/
+/**
+ * Name: Hayden Pott
+ * Date: 10 Nov 2023
+ * Desc: Full implementation of the Java standard library `Map` interface via hashing the key and using linear probing in case of collisions.
+ */
 
 import java.lang.reflect.Array;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
+// FEATURE: Look ma', generics!
 public class HashMap<K, V> implements Map<K, V> {
+
+    private static final int DEFAULT_CAPACITY = 13;
+
+    private static final HashMap.Entry<?, ?> DELETED = new HashMap.Entry<>(null, null);
 
     private Entry<K, V>[] data;
     private int size;
 
-    private static final HashMap.Entry<?, ?> DELETED = new HashMap.Entry<>(null, null);
+    public HashMap() {
+        this.clear(); // prevent dupe code by just calling the clear method, since it does the same init steps
+    }
 
+    /**
+     * Handle resize by checking if the size is > 75% of capacity and doubling the capacity if so
+     */
+    // FEATURE: "Magical" resizing!
     private void resizeIfNecessary() {
         if (this.size < this.data.length * .75) return;
 
@@ -25,13 +43,6 @@ public class HashMap<K, V> implements Map<K, V> {
         entries.forEach(e -> this.put(e.getKey(), e.getValue()));
     }
 
-    /**
-     * Default Constructor
-     */
-    public HashMap() {
-        this.size = 0;
-        this.data = (Entry<K, V>[]) Array.newInstance(Entry.class, 10);
-    }
 
     @Override
     public int size() {
@@ -50,12 +61,14 @@ public class HashMap<K, V> implements Map<K, V> {
 
     @Override
     public boolean containsValue(Object o) {
+        // We have to iterate over all entries since we don't know where this value will be
         for(V value : this.values()) {
             if (Objects.equals(o, value)) return true;
         }
         return false;
     }
 
+    // Using a custom impl instead of the default one so that we don't iterate over the map twice (default impl uses `Map#entrySet` and iterates over that)
     @Override
     public void forEach(BiConsumer<? super K, ? super V> action) {
         for (Entry<K, V> entry : this.data) {
@@ -63,15 +76,13 @@ public class HashMap<K, V> implements Map<K, V> {
         }
     }
 
-    /**
-     * Returns a vertical string representation of the dictionary's hash table
-     * This includes null and deleted Entry<K, V>s
-     * @return             String representation of the dictionary's hash table
-     */
+    @Override
     public String toString() {
+        // Ooh, fancy stream api
         return '{' + this.entrySet().stream().map(Object::toString).collect(Collectors.joining(", ")) + '}';
     }
 
+    @Override
     public V put(K key, V value) {
         this.resizeIfNecessary();
 
@@ -95,9 +106,11 @@ public class HashMap<K, V> implements Map<K, V> {
 
     @Override
     public void clear() {
-        this.size = 0;
-        this.data = (Entry<K, V>[]) Array.newInstance(Entry.class, 10);
+        this.size = 0; // reset the size
+        this.data = (Entry<K, V>[]) Array.newInstance(Entry.class, HashMap.DEFAULT_CAPACITY); // reset the data arr
     }
+
+    // FEATURE: Hey look, useful iterators!
 
     @Override
     public Set<K> keySet() {
@@ -105,7 +118,7 @@ public class HashMap<K, V> implements Map<K, V> {
         for (Entry<K, V> entry : this.data) {
             if (entry != null && entry != DELETED) set.add(entry.getKey());
         }
-        return Collections.unmodifiableSet(set);
+        return Collections.unmodifiableSet(set); // make it unmodifiable for a nicer api
     }
 
     @Override
@@ -114,7 +127,7 @@ public class HashMap<K, V> implements Map<K, V> {
         for (Entry<K, V> entry : this.data) {
             if (entry != null && entry != DELETED) vals.add(entry.getValue());
         }
-        return Collections.unmodifiableCollection(vals);
+        return Collections.unmodifiableCollection(vals); // make it unmodifiable for a nicer api
     }
 
     @Override
@@ -123,17 +136,13 @@ public class HashMap<K, V> implements Map<K, V> {
         for (Entry<K, V> entry : this.data) {
             if (entry != null && entry != DELETED) set.add(entry);
         }
-        return Collections.unmodifiableSet(set);
+        return Collections.unmodifiableSet(set); // make it unmodifiable for a nicer api
     }
 
-    /**
-     * Returns the value stored in the Dictionary for the given key
-     * @param            key - the key of the Entry<K, V> to lookup in the dictionary
-     * @return             the value of the Entry<K, V> containing key
-     */
     @Override
     public V get(Object key) {
         if (this.isEmpty()) return null;
+
         int hash, oghash;
         hash = oghash = key.hashCode() % this.data.length;
         Entry<K, V> entry = this.data[hash];
@@ -151,10 +160,6 @@ public class HashMap<K, V> implements Map<K, V> {
         return entry.getValue();
     }
 
-    /**
-     * Removes the Entry<K, V> associated with the given key
-     * @param            key - the key of the Entry<K, V> to remove from the dictionary
-     */
     public V remove(Object key) {
         if (this.isEmpty()) return null;
 

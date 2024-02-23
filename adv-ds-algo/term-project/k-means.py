@@ -37,8 +37,7 @@ def update_means(means: list[Point], clustered: list[list[Point]]) -> None:
         ab //= len(clustered[i]);
         means[i] = (ar, ag, ab);
 
-def max_diff(a: list[Point], b: list[Point]):
-    return max(b[n][i] - a[n][i] for i in range(0, 3) for n in range(0, len(a)))
+max_diff = lambda a, b: max(b[n][i] - a[n][i] for i in range(0, 3) for n in range(0, len(a)))
 
 def k_means(img, K: int):
     print('dims:       ', (img.width, img.height));

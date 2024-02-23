@@ -69,13 +69,13 @@ def main():
     #         if n > 0:
     #             mat[y][x] = 100;
 
-    # theta = 0;
-    # while theta < 2 * math.pi:
-    #     x = math.floor(w // 2 + math.cos(theta) * 50);
-    #     y = math.floor(h // 2 + math.sin(theta) * 50);
-    #     print((x, y));
-    #     mat[y][x] = 1000;
-    #     theta += .01;
+    theta = 0;
+    while theta < 2 * math.pi:
+        x = math.floor(w // 2 + math.cos(theta) * 50);
+        y = math.floor(h // 2 + math.sin(theta) * 50);
+        print((x, y));
+        mat[y][x] = 1000;
+        theta += .01;
     # for x in range(w // 2, w):
     #     mat[h // 2][x] = 100;
     # print_matrix(mat);

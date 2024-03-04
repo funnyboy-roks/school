@@ -1,3 +1,6 @@
 venv/
 **/*.png
 **/*.jpg
+**/*.mp4
+**/*.gif
+font.ttf

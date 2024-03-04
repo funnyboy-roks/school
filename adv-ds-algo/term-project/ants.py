@@ -1,92 +1,222 @@
-import random, pixie, math;
+import random, math, sys;
 
-dst_pwr = 2;
-pher_pwr = 200;
+# Usage: python ants.py [NC]
+# If you intend to use `DRAW_IMAGES`, you must install the `pixie-python` package
+
+
+## The following constants are parameters for the algorithm and may impact the performance ##
+ALPHA = 1    # Relative importance of trail
+BETA  = 5    # Relative importance of visibility (inverse of distance)
+RHO   = .5   # Trail persistence
+Q     = 100  # Quantity of trail laid
+NC    = 500  # Number of cycles
+N     = 20   # Number of cities to randomly generate
+
+
+## Configuration that does not affect how the algorithm behaves but may affect the time it takes ##
+USE_FONT = False    # Whether to use the font (Note: this requires a file in the current directory called font.ttf)
+DRAW_IMAGES = False # Whether to ourput images into the `img/` directory.  Note: this creates two images each cycle and will slow down the algorithm very heavily
+
+# some type defs
+Point = tuple[int, int]
+FloatGraph = list[list[float]]
+IntGraph = list[list[int]]
+
+MIN_P_FLOAT = 5e-324 # the minimum positive floating point value in this here language
 
 class Ant:
-    def __init__(self, start, graph, pheromones) -> None:
-        self.curr = start; 
-        self.history = [self.curr];
-        self.graph = graph;
-        self.pheromones = pheromones;
+    def __init__(self, start: int, graph: IntGraph, intensity: FloatGraph) -> None:
+        # Initialise the values in the Ant class
+        self.curr = start
+        self.history = [self.curr] # It has already visited self.curr
+        self.graph = graph
+        self.intensity = intensity
 
     def pick_neighbour(self):
-        neighbours = list(filter(lambda n: n[1] != 0 and n[0] not in self.history, enumerate(self.graph[self.curr])));
-        if len(neighbours) == 0:
-            print(neighbours);
-            raise Exception("fuck");
-        weights = [(1 / (i + 1) ** dst_pwr) * max(self.pheromones[self.curr][i] ** pher_pwr, .00001) for i in range(0, len(neighbours))];
-        [n] = random.choices(neighbours, weights=weights);
-        self.curr = n[0];
-        self.history.append(self.curr);
+        # Choose the allowed verticies to which we can travel
+        if len(self.history) == len(self.graph): # If we have been to every vertex, we can now only go to the last one.
+            allowed = [(self.history[0], self.graph[self.curr][self.history[0]])]
+        else: # Otherwise, find the verticies that we have not yet visited.
+            allowed = list(filter(lambda n: n[1] != 0 and n[0] not in self.history, enumerate(self.graph[self.curr])))
 
+        # allowed is a list of tuples which contain (index, distance)
 
-def len_of(graph, path):
-    l = 0;
-    prev = path[0];
+        # This matches the numerator of formula 4.  We do not have the
+        # denominator, since that is used to convert the weights into
+        # probability and `random.choice` handles this for us. We need the
+        # `max` function to counteract the effects of the lack of perfect
+        # precision in floating point numbers.  Without it, many numbers would
+        # go to zero and `random.choices` does not like zero.
+        weights = [
+            max(self.intensity[self.curr][j] ** ALPHA
+                * (1 / (allowed[j][1]) ** BETA), MIN_P_FLOAT)
+            for (j, _) in enumerate(allowed)
+        ]
+
+        # Get a "random" vertex from the allowed verticies using the weights
+        [(n, _)] = random.choices(allowed, weights=weights)
+
+        # Update the current and append it to the history
+        self.curr = n
+        self.history.append(self.curr)
+
+# Euclidean distance between two points
+def dist(a, b): return int(math.sqrt((b[0] - a[0]) ** 2 + (b[1] - a[1]) ** 2))
+
+# Generate a graph by choosing N random points and forming an adjacency matrix for them based on their Euclidean distance
+def generate_graph(p: list[Point] = [(random.randint(5, 95), random.randint(5, 95)) for _ in range(N)]):
+    g = [[dist(i, j) for j in p] for i in p];
+    print(f'\npoints: {p}\n\nadjacency matrix: {g}\n')
+    return p, g
+
+# Get the length of a `path` on `graph` where `path` is a list of verticies and `graph` is an adjacency matrix
+def len_of(graph: IntGraph, path: list[int]):
+    l = 0
+    prev = path[0]
     for n in path[1:]:
-        l += graph[prev][n];
-        prev = n;
-    return l;
+        l += graph[prev][n]
+        prev = n
+    return l
 
-def update_pheromones(pheromones, path, amt):
-    for row in pheromones:
-        for x in range(len(row)):
-            row[x] *= .1;
-            if row[x] <= 0.0001: row[x] = 0.0001;
-    prev = path[0];
+# Walk the path and update the edges in the `intensity` graph by adding `pheromone` to each edge
+def update_intensity(intensity: FloatGraph, path: list[int], pheromone: float):
+    prev = path[0]
     for n in path[1:]:
-        pheromones[prev][n] += amt
-        pheromones[n][prev] += amt
+        intensity[prev][n] += pheromone
+        intensity[n][prev] += pheromone
         prev = n
 
-def dist_sq(a, b): return int(math.sqrt((b[0] - a[0]) ** 2 + (b[1] - a[1]) ** 2));
+# Import the drawing library if we're drawing images
+if DRAW_IMAGES: import pixie;
+
+# Setup the font if we're using it
+if USE_FONT and DRAW_IMAGES:
+    FONT = pixie.read_font('font.ttf')
+    FONT.size = 20
+
+    paint = pixie.Paint(pixie.SOLID_PAINT)
+    paint.color = pixie.parse_color('#facade')
+    FONT.paint = paint
+
+MAIN_COLOUR = '#c0ffee';
+LAST_COLOUR = '#c0ffee';
+# Draw the path that an ant takes as an image and save it into the `img` directory
+def draw_path(path: list[int], pts: list[Point], name: str, text: str = ""):
+    if not DRAW_IMAGES: return;
+
+    image = pixie.Image(500, 500)
+    image.fill(pixie.parse_color('#000000'))
+    paint = pixie.Paint(pixie.SOLID_PAINT)
+    paint.color = pixie.parse_color('#ffffff')
+
+    ctx = image.new_context();
+    ctx.fill_style = paint
+    for pt in pts:
+        ctx.rounded_rect(pt[0] * 5 - 5, pt[1] * 5 - 5, 10, 10, 25, 25, 25, 25)
+        ctx.fill()
+
+    ctx.line_width = 2
+    prev = path[0]
+    for i, n in enumerate(path[1:]):
+        paint = pixie.Paint(pixie.SOLID_PAINT)
+        paint.color = pixie.parse_color(MAIN_COLOUR if i == len(path) - 2 else LAST_COLOUR)
+        ctx.stroke_style = paint
+
+        ctx.stroke_segment(pts[prev][0] * 5, pts[prev][1] * 5, pts[n][0] * 5, pts[n][1] * 5);
+        ctx.stroke();
+        prev = n;
+
+    if USE_FONT and len(text):
+        image.fill_text(
+            FONT,
+            text,
+            transform = pixie.translate(0, 0)
+        )
+
+    image.write_file(f'img/{name}');
+
+max_intensity = 0;
+def draw_intensity(intensity: FloatGraph, pts: list[Point], name: str, text: str = ""):
+    if not DRAW_IMAGES: return;
+
+    global max_intensity
+
+    image = pixie.Image(500, 500)
+    image.fill(pixie.parse_color('#000000'))
+    paint = pixie.Paint(pixie.SOLID_PAINT)
+    paint.color = pixie.parse_color('#ffffff')
+
+    ctx = image.new_context();
+    ctx.fill_style = paint
+    for pt in pts:
+        ctx.rounded_rect(pt[0] * 5 - 5, pt[1] * 5 - 5, 10, 10, 25, 25, 25, 25)
+        ctx.fill()
+
+    ctx.line_width = 2
+
+    max_intensity = max(max_intensity, max(max(r) for r in intensity));
+
+    paint = pixie.Paint(pixie.SOLID_PAINT);
+    paint.color = pixie.parse_color('red');
+    for i, row in enumerate(intensity):
+        for j, val in enumerate(row):
+            paint.opacity = val / max_intensity; 
+            ctx.stroke_style = paint;
+
+            ctx.stroke_segment(pts[i][0] * 5, pts[i][1] * 5, pts[j][0] * 5, pts[j][1] * 5);
+            ctx.stroke();
+
+    if USE_FONT and len(text): image.fill_text(FONT, text)
+
+    image.write_file(f'img/{name}');
 
 def main():
-    pts = [(51, 86), (3, 60), (41, 40), (38, 16), (18, 39), (12, 15), (57, 16), (13, 61), (13, 58), (10, 87), (17, 39), (22, 86), (81, 91), (27, 3), (51, 32), (22, 19), (7, 29), (15, 93), (49, 81), (59, 42)];
-    graph = [[0, 54, 47, 71, 57, 81, 70, 45, 47, 41, 58, 29, 30, 86, 54, 73, 72, 36, 5, 44], [54, 0, 42, 56, 25, 45, 69, 10, 10, 27, 25, 32, 83, 61, 55, 45, 31, 35, 50, 58], [47, 42, 0, 24, 23, 38, 28, 35, 33, 56, 24, 49, 64, 39, 12, 28, 35, 59, 41, 18], [71, 56, 24, 0, 30, 26, 19, 51, 48, 76, 31, 71, 86, 17, 20, 16, 33, 80, 65, 33], [57, 25, 23, 30, 0, 24, 45, 22, 19, 48, 1, 47, 81, 37, 33, 20, 14, 54, 52, 41], [81, 45, 38, 26, 24, 0, 45, 46, 43, 72, 24, 71, 102, 19, 42, 10, 14, 78, 75, 54], [70, 69, 28, 19, 45, 45, 0, 62, 60, 85, 46, 78, 78, 32, 17, 35, 51, 87, 65, 26], [45, 10, 35, 51, 22, 46, 62, 0, 3, 26, 22, 26, 74, 59, 47, 42, 32, 32, 41, 49], [47, 10, 33, 48, 19, 43, 60, 3, 0, 29, 19, 29, 75, 56, 46, 40, 29, 35, 42, 48], [41, 27, 56, 76, 48, 72, 85, 26, 29, 0, 48, 12, 71, 85, 68, 69, 58, 7, 39, 66], [58, 25, 24, 31, 1, 24, 46, 22, 19, 48, 0, 47, 82, 37, 34, 20, 14, 54, 52, 42], [29, 32, 49, 71, 47, 71, 78, 26, 29, 12, 47, 0, 59, 83, 61, 67, 58, 9, 27, 57], [30, 83, 64, 86, 81, 102, 78, 74, 75, 71, 82, 59, 0, 103, 66, 93, 96, 66, 33, 53], [86, 61, 39, 17, 37, 19, 32, 59, 56, 85, 37, 83, 103, 0, 37, 16, 32, 90, 81, 50], [54, 55, 12, 20, 33, 42, 17, 47, 46, 68, 34, 61, 66, 37, 0, 31, 44, 70, 49, 12], [73, 45, 28, 16, 20, 10, 35, 42, 40, 69, 20, 67, 93, 16, 31, 0, 18, 74, 67, 43], [72, 31, 35, 33, 14, 14, 51, 32, 29, 58, 14, 58, 96, 32, 44, 18, 0, 64, 66, 53], [36, 35, 59, 80, 54, 78, 87, 32, 35, 7, 54, 9, 66, 90, 70, 74, 64, 0, 36, 67], [5, 50, 41, 65, 52, 75, 65, 41, 42, 39, 52, 27, 33, 81, 49, 67, 66, 36, 0, 40], [44, 58, 18, 33, 41, 54, 26, 49, 48, 66, 42, 57, 53, 50, 12, 43, 53, 67, 40, 0]];
-    pheromones = [[0.0001] * len(r) for r in graph];
+    pts, graph = generate_graph(p=[(91, 29), (89, 10), (39, 10), (47, 43), (24, 49), (60, 55), (72, 63), (36, 25), (73, 11), (20, 61), (75, 27), (17, 39), (31, 70), (15, 87), (7, 62), (84, 95), (9, 34), (80, 37), (86, 39), (56, 72)])
+
+    # Default value is the smallest positive constant so that we don't just multiply to zero
+    intensity = [[MIN_P_FLOAT] * len(r) for r in graph]
+
     best = None;
+    best_len = 1e100; # This is the problem with unsize int types
 
-    i = 0;
-    steps = len(graph) - 1;
-    last_best = None;
-    for _ in range(500):
-        for _ in range(100):
-            ant = Ant(random.randint(0, len(graph) - 1), graph, pheromones);
-            for _ in range(steps):
-                ant.pick_neighbour();
-            # print(ant.history);
-            l = len_of(graph, ant.history);
-            if best is None or l < len_of(graph, best):
+    last_best = None
+    print('''-=-=-=-=-=-=-=-=-=-=-=-
+ Beginning Iterations: 
+-=-=-=-=-=-=-=-=-=-=-=-\n''');
+    n = len(graph);
+    for i in range(NC if len(sys.argv) == 1 else int(sys.argv[1])):
+
+        # Create an ant starting at every vertex in the graph
+        ants = [Ant(i, graph, intensity) for i in range(len(graph) - 1)];
+
+        # Have the ants walk the graph n times to visit each vertex
+        for _ in range(0, n):
+            for ant in ants:
+                ant.pick_neighbour()
+
+        # Evaporate pheromone trails by multiplying each edge by RHO
+        for row in intensity:
+            for x in range(len(row)):
+                row[x] *= RHO
+
+        # Update the pheromone trails by adding \Delta \tau to each edge
+        for ant in ants:
+            L_k = len_of(graph, ant.history);
+            update_intensity(intensity, ant.history, Q / L_k)
+            if best is None or L_k < best_len:
                 best = ant.history
-            # update_pheromones(pheromones, ant.history, 1 / l)
-            update_pheromones(pheromones, ant.history, 1)
+                best_len = len_of(graph, best);
+                
+        # Update the best path
         if last_best != best: 
-            print(best);
-            print(i, len_of(graph, best));
+            print(f'best = {best}')
+            print(f'i = {i}, best_len = {best_len}')
+        last_best = best
 
-            image = pixie.Image(500, 500);
-            image.fill(pixie.parse_color('#000000'));
-            paint = pixie.Paint(pixie.SOLID_PAINT);
-            paint.color = pixie.parse_color('#c0ffee');
+        if DRAW_IMAGES:
+            # When we get a new best path, output it as an image
+            draw_path(best, pts, f'path{i:03}.png', f'i = {i:3}, len = {best_len}');
+            draw_intensity(intensity, pts, f'trail{i:03}.png', f'i = {i:3}');
 
-            ctx = image.new_context();
-            ctx.fill_style = paint
-            for pt in pts:
-                ctx.rounded_rect(pt[0] * 5 - 5, pt[1] * 5 - 5, 10, 10, 25, 25, 25, 25);
-                ctx.fill();
-
-            paint = pixie.Paint(pixie.SOLID_PAINT);
-            paint.color = pixie.parse_color('brown');
-            ctx.stroke_style = paint;
-            ctx.line_width = 2;
-            prev = best[0];
-            for n in best[1:]:
-                ctx.stroke_segment(pts[prev][0] * 5, pts[prev][1] * 5, pts[n][0] * 5, pts[n][1] * 5)
-                ctx.stroke();
-                prev = n;
-            image.write_file(f"img/image{i:03}.png");
-        last_best = best;
-        i += 1;
-main();
+if __name__ == "__main__":
+    main()

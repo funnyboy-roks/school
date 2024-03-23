@@ -1,0 +1,230 @@
+\documentclass{article}
+
+\usepackage[margin=2cm]{geometry}
+\usepackage{graphicx}
+\usepackage{graphics}
+\usepackage{hyperref}
+\usepackage{psfrag}
+\usepackage{ifthen}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{color}
+\usepackage{amsmath, amsfonts, amsthm}
+\usepackage[shortlabels]{enumitem}
+\setcounter{secnumdepth}{0}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\R}{\mathbb{R}}
+
+\begin{document}
+
+\title{Homework 2}
+\author{Hayden Pott}
+\date{25 March 2024}
+%fontsize: 14pt
+%header-includes: |
+%---
+
+\section{1-20}
+    \begin{enumerate}[a)]
+
+    \item We see $\neg(p \lor q)$ is true iff $p \lor q$ is false.  $p \lor q$ is
+        false iff $p$ is false and $q$ is false.  $p$ is false and $q$ is false
+        iff $\neg p$ is true and $\neg q$ are true.  $\neg p$ is true and $\neg
+        q$ is true iff $\neg p \land \neg q$ are true. \\
+        Thus, $\neg(p \lor q)$ and $\neg p \lor \neg q$ are true in exactly the same cases.
+
+    \item
+        \begin{align*}
+            \neg p \land \neg q &\equiv (\neg p \land \neg q) \lor (\neg p \land \neg q) \\
+            &\equiv \neg(\neg(\neg p\land \neg q) \land \neg(\neg p \land \neg q)) && \text{From DeMorgan's Part 1} \\
+            &\equiv \neg(\neg(\neg p \land \neg q)) \\
+            &\equiv \neg(p \lor q) \\
+            \square
+        \end{align*}
+
+    \item
+        \begin{tabular}{ |c|c|c|c|c|c|c| }
+        \hline
+        $p$   & $q$ & $\neg p$ & $\neg q$ & $p \lor q$ & $\neg(p \lor q)$ & $\neg p \land \neg q$ \\
+        \hline
+            F & F   & T        & T        & F          & T                & T                     \\
+            F & T   & T        & F        & T          & F                & F                     \\
+            T & F   & F        & T        & T          & F                & F                     \\
+            T & T   & F        & F        & T          & F                & F                     \\
+        \hline
+        \end{tabular}
+    \end{enumerate}
+
+\section{1-23}
+
+\begin{enumerate}[a)]
+    \item If $f$ is not continuous, then it is not differentiable
+\end{enumerate}
+
+\section{1-24}
+\begin{enumerate}[a)]
+    \item Can an implication and its contrapositive both be true? \\
+        - Yes, we proved that an implication always has the same truth
+        value as its contrapositive in class.
+    \item Can an implication and its contrapositive both be false? \\
+        - Yes, we proved that an implication always has the same truth
+        value as its contrapositive in class.
+    \item Can an implication be true while it s contrapositive is false? \\
+        - No, we proved that an implication always has the same truth
+        value as its contrapositive in class.
+\end{enumerate}
+
+\section{1-30}
+
+\begin{enumerate}[a)]
+    \item Prove that $(p \mid q) \mid (p \mid \neg q) \equiv p$
+
+    \begin{align*}
+        (p \mid q) \mid (p \mid \neg q) &\equiv (p \land q) \lor (p \land \neg q) \\
+            &\equiv ((p \land q) \lor p) \land ((p \land q) \lor \neg q)) \\
+            &\equiv (p \lor p) \land (q \lor p) \land (p \lor \neg q) \land (q \lor \neg q) \\
+            &\equiv p \land [(q \lor p) \land (p \lor \neg q)] \\
+            &\equiv p \land [p \lor [q \land \neg q]] \\
+            &\equiv p \land p \\
+            &\equiv p \\
+    \end{align*}
+\end{enumerate}
+
+\section{1-32}
+
+The statement "If you don't try, then you won't win." is undoubtedly true.  Does
+that mean that if you try, then you will win? Explain your answer.
+
+No. $\neg p \implies \neg q$ doesn't require that $p \implies q$ is true.  In
+this statement, "you try" would be $p$ and "will win" is $q$.
+
+
+\section{1-33}
+
+\begin{enumerate}[a)]
+    \item
+\end{enumerate}
+
+\section{1-35}
+
+\begin{enumerate}[a)]
+    \item $\neg\left[\exists p \in \N : 2p = 6\right] \equiv \forall p
+        \in \N : 2p \neq 6$ \\
+        statement: true \\
+        negation: false \\
+    \item $\neg\left[\forall x \in \R : x^2 \geq 1 \right] \equiv 
+        \exists x \in \R : x^2 < 1$ \\
+        statement: false \\
+        negation: true \\
+    \item $\neg\left[\exists p, q \in \N : pq = 12 \right] \equiv 
+        \forall p,q \in \N : pq \neq 12$ \\
+        statement: true \\
+        negation: false \\
+    \item \begin{align*}
+            \neg\left[\forall n \in \N : \exists p,q \in \{2, \dots, n - 1\} : pq = n\right]
+        &\equiv \exists n \in \N : \neg \left[\exists p,q \in \{2, \dots, n - 1\} : pq = n\right] \\
+        &\equiv \exists n \in \N : \forall p,q \in \{2,\dots, n-1\} : pq \neq n
+        \end{align*} \\
+        statement: true \\
+        negation: false \\
+\end{enumerate}
+
+\section{1-39}
+
+\begin{enumerate}[a)]
+    \item
+        \begin{tabular}{ |c|c|c|c|c| }
+            \hline
+                $p$ & $q$ & $p \implies q$ & $p \land (p \implies q)$ & $[p \land (p \implies q)] \implies q$ \\
+            \hline
+                F   & F   & T              & F                        & T                                   \\
+                F   & T   & T              & F                        & T                                   \\
+                T   & F   & F              & F                        & T                                   \\
+                T   & T   & T              & T                        & T                                   \\
+            \hline
+        \end{tabular}
+
+    \item
+        \begin{align*}
+            [p \land (p \implies q)] \implies q
+            &\equiv [p \land (\neg p \lor q)] \implies q \\
+            &\equiv [(p \land \neg p) \lor (p \land q)] \implies q \\
+            &\equiv [p \land q] \implies q \\
+            &\equiv \neg p \lor \neg q \lor q \\
+            &\equiv \neg p \lor T \\
+            &\equiv T
+        \end{align*}
+
+\end{enumerate}
+
+\section{1-44}
+
+\begin{enumerate}[a)]
+    \item foo
+\end{enumerate}
+
+\section{1-49}
+
+\begin{enumerate}[a)]
+    \item
+        \begin{align*}
+            (p \land q) \implies q
+            &\equiv \neg p \lor \neg q \lor q \\
+            &\equiv \neg p \lor T \\
+            &\equiv T \\
+        \end{align*}
+    \item
+        \begin{tabular}{ |c|c|c|c| }
+            \hline
+                $p$ & $q$ & $p \lor q$ & $p \implies p \lor q$ \\
+            \hline
+                F & F & F & T \\
+                F & T & T & T \\
+                T & F & T & T \\
+                T & T & T & T \\
+            \hline
+        \end{tabular}
+\end{enumerate}
+
+\section{1-51}
+
+Let $p$, $q$ be primitive propositions.  Prove verbally and by
+constructing a truth table that the following are \textit{not}
+tautologies
+
+\begin{enumerate}[a)]
+    \item TODO
+    \item 
+        \begin{tabular}{ |c|c|c|c|c| }
+            \hline
+                $p$ & $q$ & $q \implies p$ & $p \land (q \implies p)$ & $[p \land (q \implies p)] \implies q$ \\
+            \hline
+                F & F & T & F & T \\
+                F & T & F & F & T \\
+                T & F & T & T & F \\
+                T & T & T & T & T \\
+            \hline
+        \end{tabular}
+\end{enumerate}
+
+\section{1-53}
+
+Prove that $\sqrt{3}$ is irrational.
+
+\begin{proof}
+    SFAC that $\sqrt{3}$ is rational.  Then $\exists \, n,d \in \mathbb{Z} :
+    \frac{n}{d} = \sqrt{3}$, such that $n$ and $d$ share no common factors.
+    \begin{align*}
+        \sqrt{3}d &= n \\
+        3d^2 &= n^2 \implies \text{$3$ is a factor of $n^2$ and since $3$ is
+        prime, 3 is a factor of $n$} \\
+        &\implies \exists k \in \mathbb{Z} : n = 3k \\
+        &\implies n^2 = (3k)^2 = 9k^2 \\
+        &\implies d^2 = 3k^2 \implies \text{$3$ is a factor of $d^2$ and since
+        $3$ is prime, $3$ is a factor of $d$}
+    \end{align*}
+    However, we claimed that $n$ and $d$ have no common factors. \\
+    Contradiction. Thus, $\sqrt{3}$ is irrational.  
+\end{proof}
+
+\end{document}

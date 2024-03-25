@@ -20,9 +20,6 @@
 \title{Homework 2}
 \author{Hayden Pott}
 \date{25 March 2024}
-%fontsize: 14pt
-%header-includes: |
-%---
 
 \section{1-20}
     \begin{enumerate}[a)]
@@ -90,6 +87,8 @@
     \end{align*}
 \end{enumerate}
 
+\newpage
+
 \section{1-32}
 
 The statement "If you don't try, then you won't win." is undoubtedly true.  Does
@@ -102,7 +101,15 @@ this statement, "you try" would be $p$ and "will win" is $q$.
 \section{1-33}
 
 \begin{enumerate}[a)]
-    \item
+    \item Prove that the statement ``$\exists x \in S : p(x)$'' is true iff the
+        statement ``$\neg [\forall x \in S : \neg p(x)]$''. \\
+        ANSWER: \\ % TODO
+        I'm not sure how to prove this. My thought is either contradiction or
+        cases.  For contradiction, one would need to claim there is a difference
+        and find a contradiction in that.  For cases, one could take the case
+        for any arbitrary but fixed $x$, where $p(x)$ is either true or false
+        (the two cases) and prove that that element would also be true in the
+        inverted statement.
 \end{enumerate}
 
 \section{1-35}
@@ -160,7 +167,17 @@ this statement, "you try" would be $p$ and "will win" is $q$.
 \section{1-44}
 
 \begin{enumerate}[a)]
-    \item foo
+    \item State the tautology that governs a proof by case distinction with
+        three cases $A_1$, $A_2$, and $A_3$. \\
+        ANSWER: $$
+        \left[
+            p
+            \land (A_1 \lor A_2 \lor A_3)
+            \land \left[(p \land A_1) \implies q\right]
+            \land \left[(p \land A_2) \implies q\right]
+            \land \left[(p \land A_3) \implies q\right]
+        \right] \implies q
+        $$
 \end{enumerate}
 
 \section{1-49}
@@ -193,18 +210,29 @@ constructing a truth table that the following are \textit{not}
 tautologies
 
 \begin{enumerate}[a)]
-    \item TODO
-    \item 
-        \begin{tabular}{ |c|c|c|c|c| }
-            \hline
-                $p$ & $q$ & $q \implies p$ & $p \land (q \implies p)$ & $[p \land (q \implies p)] \implies q$ \\
-            \hline
-                F & F & T & F & T \\
-                F & T & F & F & T \\
-                T & F & T & T & F \\
-                T & T & T & T & T \\
-            \hline
-        \end{tabular}
+    \item $[p \land (q \implies p)] \implies q$
+        \begin{enumerate}[1)]
+            \item We know that $[p \land (q \implies p)] \implies q$ is true iff
+                $[p \land [\neg q \land p]] \implies q$ is true. $[p \land [\neg
+                q \land p]] \implies q$ is true iff $[p \land \neg q] \implies
+                q$ is true. $[p \land \neg q] \implies q$ is true iff $\neg [p
+                \land \neg q] \lor q$ is true. $\neg [p \land \neg q] \lor q$ is
+                true iff $\neg p \lor q \lor q$ is true. $\neg p \lor q \lor q$
+                is true iff $\neg p \lor q$ is true. $\neg p \lor q$ is not a
+                tautology because it is false when $p$ is true and $q$ is false,
+                so $[p \land (q \implies p)] \implies q$ is not.
+            \item 
+                \begin{tabular}{ |c|c|c|c|c| }
+                    \hline
+                    $p$ & $q$ & $q \implies p$ & $p \land (q \implies p)$ & $[p \land (q \implies p)] \implies q$ \\
+                    \hline
+                    F & F & T & F & T \\
+                    F & T & F & F & T \\
+                    T & F & T & T & F \\
+                    T & T & T & T & T \\
+                    \hline
+                \end{tabular}
+        \end{enumerate}
 \end{enumerate}
 
 \section{1-53}

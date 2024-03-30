@@ -162,13 +162,10 @@
         \end{enumerate}
 
     \item Does every regular expression define a language? \\
-        ANSWER: Yes, for any regular expression, we can use it to produce
-        strings using the rules defined in the expression, therefore creating a
-        language by definition.
+        ANSWER: Yes, for any regular expression we can construct its language
+        using the semantic rules.
     \item Does every finite automaton define a language? \\
-        ANSWER: Yes, for any finite automaton, we can use it to produce strings
-        (or validate from a set of strings), therefore creating a
-        language by definition.
+        ANSWER: No
 
         \section{Lecture 4}
     \item Consider the language of ``all (and only) the words over the alphabet
@@ -176,15 +173,18 @@
         \begin{enumerate}[a)]
             \item Draw a finite automaton for this language. \\
                 ANSWER: \\
-                \begin{tikzpicture}[node distance={15mm}, main/.style = {draw, circle}] 
+                \begin{tikzpicture}[node distance={20mm}, main/.style = {draw, circle}] 
                     \node[main] (X) {$-X$}; 
                     \node[main] (Y) [right of=X] {$Y$};
-                    \node[main] (Z) [right of=Y] {$+Z$};
-                    \path[-Latex, bend left=10mm] (X) edge node[above] {a} (Y);
-                    \path[-Latex, bend right=10mm] (X) edge node[below] {b} (Y);
+                    \node[main] (U) [below right of=Y] {$U$};
+                    \node[main] (Z) [above right of=Y] {$+Z$};
+                    \path[-Latex] (X) edge node[above] {a,b} (Y);
                     \path[-Latex] (Y) edge node[above] {b} (Z);
-                    \path[-Latex] (Z) edge [out=90,in=45,looseness=5] node[above] {a} (Z);
-                    \path[-Latex] (Z) edge [out=270,in=315,looseness=5] node[below] {b} (Z);
+
+                    \path[-Latex] (Z) edge [out=270,in=315,looseness=5] node[below] {a,b} (Z);
+                    \path[-Latex] (U) edge [out=90,in=45,looseness=5] node[above] {a,b} (U);
+                    
+                    \path[-Latex] (Y) edge node[right] {a} (U);
                     %\path[->] (1) edge node[above] {a} (2);
                     %\path[->] (1) edge [out=90,in=180,looseness=10] node[above] {a} (1);
                 \end{tikzpicture} 
@@ -200,15 +200,15 @@
             \node[main] (X) {$-X$}; 
             \node[main] (Y) [above right of=X] {$Y$};
             \node[main] (Z) [below right of=X] {$Z$};
-            \node[main] (W) [right of=Y] {$+W$};
+            \node[main] (U) [right of=Y] {$+U$};
             \node[main] (V) [right of=Z] {$+V$};
 
             \path[-Latex] (X) edge node[above left] {a} (Y);
             \path[-Latex] (X) edge node[below left] {b} (Z);
 
             \path[-Latex] (Y) edge [out=90,in=135,looseness=5] node[above] {a} (Y);
-            \path[-Latex, bend left=10mm] (W) edge node[above] {a} (Y);
-            \path[-Latex, bend left=10mm] (Y) edge node[above] {b} (W);
+            \path[-Latex, bend left=10mm] (U) edge node[above] {a} (Y);
+            \path[-Latex, bend left=10mm] (Y) edge node[above] {b} (U);
 
             \path[-Latex] (Z) edge [out=270,in=225,looseness=5] node[below] {b} (Z);
             \path[-Latex, bend left=10mm] (V) edge node[above] {b} (Z);
@@ -216,6 +216,8 @@
 
             %\path[->] (1) edge node[above] {a} (2);
             %\path[->] (1) edge [out=90,in=180,looseness=10] node[above] {a} (1);
+            \path[-Latex] (U) edge [out=45,in=315,looseness=5] node[right] {b} (U);
+            \path[-Latex] (V) edge [out=315,in=45,looseness=5] node[right] {a} (V);
         \end{tikzpicture}
 
     \item Consider the language consisting of all (and only) the words over the

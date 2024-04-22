@@ -1,0 +1,263 @@
+\documentclass{article}
+
+\usepackage[margin=2cm]{geometry}
+\usepackage{graphicx}
+\usepackage{graphics}
+\usepackage{hyperref}
+\usepackage{psfrag}
+\usepackage{ifthen}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{color}
+\usepackage{tikz}
+\usepackage{amsmath, amsfonts, amsthm}
+\usepackage[shortlabels]{enumitem}
+\setcounter{secnumdepth}{0}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\R}{\mathbb{R}}
+
+\usetikzlibrary{svg.path}
+
+
+\begin{document}
+
+\title{Homework 5}
+\author{Hayden Pott}
+\date{22 April 2024}
+
+\maketitle
+
+\section{2-20}
+
+Prove part 2 of Theorem 2.36.
+
+\begin{proof}
+    \begin{align*}
+        A \setminus (B \cap C) &= \{x : x \in A \land x \not\in (B \cap C) \} \\
+        &= \{x : x \in A \land \neg(x \in (B \cap C)) \} \\
+        &= \{x : x \in A \land \neg(x \in B \land x \in C) \} \\
+        &= \{x : x \in A \land (x \not\in B \lor x \not\in C) \} \\
+        &= \{x : (x \in A \land x \not\in B) \lor (x \in A \land x \not\in C) \} \\
+        &= \{x : x \in (A \setminus B) \lor x \in (A \setminus C) \} \\
+        &= \{x : x \in ((A \setminus B) \cup (A \setminus C)) \} \\
+        &= (A \setminus B) \cup (A \setminus C)
+    \end{align*}
+
+\end{proof}
+
+\section{2-24}
+
+Alternate proofs for Theorems 2.35 and Theorem 2.36.  For each of the following
+proofs, use Standard Proof Technique 2.26 (Proof by mutual containment)
+
+\begin{enumerate}
+    \item[b)] Prove part 2 of Theorem 2.35
+        \begin{proof}
+            Let $x \in A \cup (B \cap C)$ be ABF. \\
+            $\implies$ $x \in A \lor x \in B \cap C$ \\
+            $\implies$ $x \in A \lor (x \in B \land x \in C)$ \\
+            $\implies$ $(x \in A \lor x \in B) \land (x \in A \lor x \in C)$ \\
+            $\implies$ $x \in (A \cup B) \land x \in (A \cup C)$ \\
+            $\implies$ $x \in ((A \cup B) \cap (A \cup C))$ \\
+            $\implies$ $A \cup (B \cap C) \subseteq (A \cup B) \cap (A \cup C)$ \\
+
+            Let $y \in (A \cup B) \cap (A \cup C)$ be ABF. \\
+            $\implies$ $y \in (A \cup B) \land y \in (A \cup C)$ \\
+            $\implies$ $(y \in A \lor y \in B) \land (y \in A \lor y \in C)$ \\
+            $\implies$ $y \in A \lor (y \in B \land y \in C)$ \\
+            $\implies$ $y \in A \lor y \in (B \cap C)$ \\
+            $\implies$ $y \in A \cup (B \cap C)$ \\
+            $\implies$ $(A \cup B) \cap (A \cup C) \subseteq A \cup (B \cap C)$ \\
+
+            Therefore, by mutual containment, we have that $A \cup (B \cap C) =
+            (A \cup B) \cap (A \cup C)$
+        \end{proof}
+\end{enumerate}
+
+\section{2-32}
+
+Let $A$, $B$, $C$ be sets.  Prove each of the following equalities using the
+Axiom of Extension.  That is, prove each of the following equalities by proving
+that each element of the set on the left side is an element of the set on the
+right side and vice versa.
+
+\begin{enumerate}
+    \item[d)] $A \Delta (B \Delta C) = (A \Delta B) \Delta C$
+        \begin{proof}
+            \begin{align*}
+                A \Delta (B \Delta C) &= (A \setminus (B \Delta C)) \cup ((B \Delta C) \setminus A) \\
+                &= \Big(A \setminus ((B \setminus C) \cup (C \setminus B))\Big) \cup \Big(((B \setminus C) \cup (C \setminus B)) \setminus A\Big) \\
+                &= \Big((A \setminus (B \setminus C) \cap A \setminus (C \setminus B))\Big) \cup \Big(((B \setminus C) \cup (C \setminus B)) \setminus A\Big) \\
+                &= ((A \setminus (B \setminus C)) \cap (A \setminus (C \setminus B))) \cup ((B \setminus C)\setminus A) \cup ((C \setminus B)\setminus A) \\
+                &= (((A \setminus B \setminus C) \cup (B \setminus A \setminus C))) \cup (((C \setminus (A \setminus B)) \cap (C \setminus (B \setminus A))) \\
+                &= (((A \setminus B) \setminus C \cup (B \setminus A) \setminus C)) \cup (((C \setminus (A \setminus B)) \cap (C \setminus (B \setminus A))) \\
+                &= (((A \setminus B) \cup (B \setminus A)) \setminus C) \cup (C \setminus ((A \setminus B) \cup (B \setminus A)) \\
+                &= ((A \Delta B) \setminus C) \cup (C \setminus (A \Delta B)) \\
+                &= (A \Delta B) \Delta C 
+            \end{align*}
+        \end{proof}
+\end{enumerate}
+
+\section{2-36}
+
+Power sets.
+
+\begin{enumerate}[a)]
+    \item Compute the power set of the set $\{a, b, c, d\}$ \\
+        \textbf{ANSWER:} \\
+        $P(S) = \{
+        \emptyset,
+        \{a\},
+        \{b\},
+        \{c\},
+        \{d\},
+        \{a,b\},
+        \{a,c\},
+        \{a,d\},
+        \{b,c\},
+        \{b,d\},
+        \{c,d\},
+        \{a,b,c\},
+        \{a,b,d\},
+        \{a,c,d\},
+        \{b,c,d\},
+        \{a,b,c,d\}
+    \}$
+    \item Compute the power set of the set $\{1, 2, 3, 4\}$ \\
+        \textbf{ANSWER:} \\
+        $P(S) = \{
+        \emptyset,
+        \{1\},
+        \{2\},
+        \{3\},
+        \{4\},
+        \{1,2\},
+        \{1,3\},
+        \{1,4\},
+        \{2,3\},
+        \{2,4\},
+        \{3,4\},
+        \{1,2,3\},
+        \{1,2,4\},
+        \{1,3,4\},
+        \{2,3,4\},
+        \{1,2,3,4\}
+    \}$
+    \item Is there any significant difference between Exercises 2-36a and 2-36b? \\
+        \textbf{ANSWER}: No, the only difference is what we call the objects in
+        the set
+\end{enumerate}
+
+\section{2-39}
+
+Let $A = \{1, 2, 3, 4\}$ and let $B = \{a, b, c, d, e\}$.  Determine which of
+the following relations is a function.  If it is a function, determine if it is
+injective, surjective, bijective, or none of the above.  Justify your answers
+using the definitions.
+
+\begin{enumerate}[a)]
+    \item $\{(1, a), (2, b), (3, c), (4, d)\}$ from $A$ to $B$ \\
+        \textbf{ANSWER:} \\
+        Function -- Well defined and totally defined \\
+        Injective \checkmark -- No two values from $A$ map to the same value in
+        $B$. \\
+        Surjective $\times$ -- The value $e$ in $B$ can not be reached in this
+        function.
+    \item $\{(1, a), (2, b), (3, c), (4, d)\}$ from $A \setminus \{4\}$ to $B$ \\
+        \textbf{ANSWER:} \\
+        Function -- Well defined and totally defined \\
+        Injective \checkmark -- No two values from $A \setminus \{4\}$ map to the same value in
+        $B$. \\
+        Surjective $\times$ -- The values $e$ and $d$ in $B$ can not be reached in this
+        function.
+    \item $\{(1, a), (2, b), (3, c), (4, c)\}$ from $A$ to $B$ \\
+        \textbf{ANSWER:} \\
+        Function -- Well defined and totally defined \\
+        Injective $\times$ -- The value $c$ in $B$ can be reached by both $3$
+        and $4$ in $A$. \\
+        Surjective $\times$ -- The values $e$ and $d$ in $B$ can not be reached in this
+        function.
+    \item $\{(1, a), (2, b), (3, c), (4, a)\}$ from $A$ to $B \setminus \{d, e\}$ \\
+        \textbf{ANSWER:} \\
+        Function -- Well defined and totally defined \\
+        Injective $\times$ -- The value $1$ in $B$ can be reached by both $1$
+        and $4$ in $A$. \\
+        Surjective \checkmark -- All values in $B$ can be reached from a value
+        in $A$.
+\end{enumerate}
+
+\section{2-40}
+
+For each pair of functions, check if they are inverses of each other.  For this
+exercise, you may use what you know about real numbers and functions of real
+numbers.
+
+\begin{enumerate}[a)]
+    \item $f, g : \R \to \R, f(x) = 3x + 6, g(x) = \frac{x}{3} - 2$
+        \begin{proof}
+            \begin{align*}
+                f(g(x)) &= 3(\frac{x}{3} - 2) + 6 \\
+                        &= x - 6 + 6 \\
+                        &= x \\
+                        &= id_\R(x) \\
+                \\
+                g(f(x)) &= \frac{3x + 6}{3} - 2 \\
+                        &= x + 2 - 2 \\
+                        &= x \\
+                        &= id_\R(x) \\
+            \end{align*}
+        \end{proof}
+        Thus, because $f \circ g$ and $g \circ f$ are both the identity
+        function, $id_\R$, we can conclude that $f$ and $g$ are inverses of
+        each other.
+\end{enumerate}
+
+\section{2-42}
+
+Determine which of the following functions are one-to-one.  For those that are
+one-to-one, compute the inverse from the range to the domain.  For this
+exercise, you may use what you know about real numbers and functions of real
+numbers.
+
+\begin{enumerate}
+    \item[c)] $f: \R \setminus \left\{\frac{5}{2}\right\} \to \R, f(x) =
+        \frac{5x+4}{2x-5}$ \\
+        \textbf{ANSWER:} \\
+        One-to-one function \checkmark \\
+        \begin{align*}
+            x &= \frac{5g(x)+4}{2g(x)-5} \\
+            x(2g(x)-5) &= 5g(x)+4 \\
+            2xg(x) - 5x &= 5g(x) + 4 \\
+            2xg(x) - 5g(x) &= 5x + 4 \\
+            (2x - 5)g(x) &= 5x + 4 \\
+            g(x) &= \frac{5x + 4}{2x - 5}\\
+        \end{align*}
+        Inverse: $g(x) = \frac{5x + 4}{2x - 5}$
+\end{enumerate}
+
+\section{2-43}
+
+Each of the graphs in Figure 2.13 depicts a relation from $\R$ to $\R$.  For
+each graph, decide if the relation is an injective, surjective, or bijective
+function.
+
+\begin{enumerate}[1)]
+    \item Injective $\times$ \\
+          Surjective $\times$ \\
+          Bijective $\times$ \\
+
+    \item Injective \checkmark \\
+          Surjective \checkmark \\
+          Bijective \checkmark \\
+
+    \item Injective $\times$ \\
+          Surjective \checkmark \\
+          Bijective $\times$ \\
+
+    \item Not a function \\
+          Injective $\times$ \\
+          Surjective $\times$ \\
+          Bijective $\times$ \\
+\end{enumerate}
+
+\end{document}

@@ -79,7 +79,7 @@ We are conserned with two things:
   - Variance\*
     - Sample: $S^2 = sum(x-overline(x))^2/underbracket(n-1, "deg of freedom") = S_(x x)/(n-1)$
     - $sqrt(S^2) = S$: standard deviation
-    - pq: $sigma^2 = sum(x-overline(x))^2/n$
+    - Population: $sigma^2 = sum(x-overline(x))^2/n$
 
 == Chapter 2
 
@@ -281,7 +281,7 @@ Bernoulli (Binomial) Distribution: $
 b(x; n, p) = choose(n, x) p^x (1 - p)^(n-x)
 $
 
-#example(name: [(Inherit from coins)])[
+#example(name: [(Based on the 3 coins)])[
   $
   b(x; 3, 1/2) &= 3!/(x!(3-x)!) (1/2)^x (1-1/2)^(3-x) \
   b(0; 3, 1/2) &= 3!/(0!(3)!) (1/2)^0 (1-1/2)^(3) = 1/8 \
@@ -300,7 +300,129 @@ $
   &= 0.335$
 ]
 
-for binomial distrubtion:
+for binomial distribution:
 
 $E(x) = n p$ \
 $V(x) = n p (1 - p)$
+
+=== 3.5 & 3.6 Other Discrete Distributions
+
+#def(name: [Hypergeometric])[
+  Probability of a specific number of successes in our set of
+  trials
+
+  1. The population or set to be sampled consists of $N$ individuals, objects,
+     or elements (a _finite_ population).
+  2. Each individual can be characterised as a success ($S$) or failure ($F$),
+     and there are $M$ success in the population.
+  3. A sample of $n$ individuals is selected without replacement in such a way
+     that each subset of size $n$ is equally likely to be chosen.
+
+  If $X$ is the number of $S$s in a completely random sampel of size $n$ drawn
+  from a population consisting of $M$ $S$s and $(N - M)$ $F$s, then the
+  probability distribution of $X$, called the hypergeometric distribution, is
+  given by: $
+  P(X = x) = h(x; n, M, N) = (choose(M, x)choose(N - M ,n - x))/choose(N, n)
+  $ for $x$, an integer satisfying $max(0, n - N + M) <= x <= min(n, M)$
+
+  *_(Example in lecture)_*
+
+  $
+  E(x) &= n (M/N) \
+  V(x) &= n (M/N)(1-M/N)
+  $
+]
+
+Binomial and hypergeometric: $x$ is the number of sucesses in a given number of
+trials
+
+#def(name: [Negative Binomial])[
+  $x$ is the number of trails before number of desired successes is obtained.
+
+  The negative binomail rv and distribution are based on an experiment stasfying the following conditions:
+
+  1. The experiment consists of a sequence of independent trials
+  2. Each triel can result in either success ($S$) or fail ($F$)
+  3. The probability of success is constant from trial to trial, so $P(S)$
+  ... *_(Need to get rest from lecture)_*
+
+  $
+  "nb"(x; r, p) = ...
+  $
+
+  *_(Example in lecture)_*
+
+  $
+  E(x) = r(1-p)/p \
+  V(x) = r(1-p)/p^2 \
+  $
+]
+
+#def(name: [Poisson Probability Dristibution])[
+  1. The experiment consists of counting the number of times an event, $x$
+     occurs in a given interval.  The interval can be an interval of time,
+     area, or volume.
+  2. The probability of the event occurring is the same for each interval
+  3. The number of occurrences in one interval is independent to the number of
+  occurrences in other intervals
+
+  $
+  p(x; mu) &= (e^(-mu) mu^x)/x! \
+  E(x) &= mu \
+  V(x) &= mu \
+  $
+
+  If $n > 50$ and $n p < 5$, then we can estimate a Binomial with a Poisson.
+]
+
+#example[
+  Let $X$ denote the number of traps in a particular type of metal, and suppose
+  it has a Possion distribution with $mu = 2$.  The probability that there are
+  example three traps is:
+
+  $
+  P(x = 3) = p(3; 2) = (e^(-2)2^3) / 3! = 0.18045
+  $
+]
+
+*_(Another example in lecture)_*
+
+== Exam
+
+Presenting data:
+- histogram
+- box/whisker
+
+Centre
+- Mean
+  - Trimmed (remove outliers)
+- Median
+- Mode
+
+Spread
+- Range
+- Variance $->$ Std dev
+
+Venn diagrams for visualisation
+
+union, intersection, complement
+
+Conditional probability: $P(A | B) = P(A sect B)/P(B)$
+
+counting:
+- multiplcation
+- permutation (w/ order)
+- combination (w/o order) -- choose function
+
+$E(x) = sum x dot p(x)$ \
+$V(x) = sum (x - mu)^2 dot p(x)$
+
+-> $E(a x + b) = a E(x) + b$ \
+-> $V(a x + b) = a^2 V(x) + 0$ \
+
+Distribtions:
+
+1. Binomial
+2. Hypergeometric 
+3. Poisson
+

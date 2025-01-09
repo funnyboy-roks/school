@@ -16,67 +16,62 @@ grammar WeirdCalc;
 
 // PARSER
 program
-       @init {
-           env = new HashMap<>();
-       }
-       : program line
-       | epsilon
-       ;
+    @init {
+        env = new HashMap<>();
+    }
+    : program line
+    | epsilon;
 
 epsilon:;
 
-line   : assign SEMICOLON
-       | print SEMICOLON
-       ;
+line: assign SEMICOLON | print SEMICOLON;
 
-assign : IDENT EQUALS exp {
-           env.put($IDENT.text, $exp.n);
-       }
-       ;
+assign: IDENT EQUALS exp {
+    env.put($IDENT.text, $exp.n);
+};
 
-print  : PRINT LPAREN exp RPAREN {
+print:
+    PRINT LPAREN exp RPAREN {
         System.out.println($exp.n);
-        }
-       | PRINT LPAREN RPAREN {
+    }
+    | PRINT LPAREN RPAREN {
         System.out.println();
-       }
-       ;
+    };
 
-exp returns [int n] :
-        e=exp HASH item { 
-            $n = $e.n % $item.n == 0 ? 0 : 1;
-        }
-        | item {
-             $n = $item.n;
-        }
-        ;
+exp returns [int n]:
+    e=exp HASH item { 
+        $n = $e.n % $item.n == 0 ? 0 : 1;
+    }
+    | item {
+         $n = $item.n;
+    };
 
-item returns [int n] : o=operand AT i=item {
-           $n = Math.abs($o.n + $i.n);
-       }
-       | o=operand TILDE i=item {
-           $n = $o.n * $o.n + $i.n * $i.n;
-       }
-       | operand {
-           $n = $operand.n;
-       }
-       ;
+item returns [int n]:
+    o=operand AT i=item {
+        $n = Math.abs($o.n + $i.n);
+    }
+    | o=operand TILDE i=item {
+        $n = $o.n * $o.n + $i.n * $i.n;
+    }
+    | operand {
+        $n = $operand.n;
+    };
 
-operand returns [int n]: DOLLAR o=operand {
-            $n = $o.n < 0 ? -1 : $o.n > 0 ? 1 : 0;
-        }
-        | data {
-            $n = $data.n;
-        }
-        ;
+operand returns [int n]:
+    DOLLAR o=operand {
+        $n = $o.n < 0 ? -1 : $o.n > 0 ? 1 : 0;
+    }
+    | data {
+        $n = $data.n;
+    };
 
-data returns [int n]: NUMBER {
-            $n = Integer.parseInt($NUMBER.text);
-       }
-       | IDENT {
-            $n = env.get($IDENT.text);
-       }
-       ;
+data returns [int n]:
+    NUMBER {
+        $n = Integer.parseInt($NUMBER.text);
+    }
+    | IDENT {
+        $n = env.get($IDENT.text);
+    };
 
 // LEXER
 SEMICOLON : ';'                       ;

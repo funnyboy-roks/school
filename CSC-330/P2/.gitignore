@@ -1,0 +1,11 @@
+# java shit
+*.class
+*.jar
+
+# antlr output
+*.interp
+*.tokens
+WeirdCalcBaseListener.java
+WeirdCalcLexer.java
+WeirdCalcListener.java
+WeirdCalcParser.java

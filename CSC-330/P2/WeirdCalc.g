@@ -70,6 +70,9 @@ data returns [int n]:
         $n = Integer.parseInt($NUMBER.text);
     }
     | IDENT {
+        if (!env.containsKey($IDENT.text)) {
+            throw new RuntimeException(String.format("Variable '%s' not defined", $IDENT.text));
+        }
         $n = env.get($IDENT.text);
     };
 

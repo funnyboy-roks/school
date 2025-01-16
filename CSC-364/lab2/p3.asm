@@ -1,0 +1,34 @@
+# Hayden Pott, Enrique Leonel Claros-Turcios, Javen Wilson, Patrick McCoy
+# CSC 364 Lab 1
+# 1/16/25
+# add2.asm-- A program that computes and prints the sum
+# of two numbers specified at runtime by the user.
+# Registers used:
+# $t0 - used to hold the counter value
+# $v0 - syscall parameter and sometimes return value.
+# $a0 - syscall parameter.
+main:
+    # int x = 0;
+    li $t0, 0
+    # do {
+number_loop:
+    # print(x);
+    li $v0, 34                # Load 34 into $v0 for print int as hex syscall
+    add $a0, $t0, $zero       # move $t0 into $a0 so we can print it
+    syscall                   # execute that syscall
+
+    # putchar('\n')
+    li $v0, 11                # Load 11 into $v0 for print char syscall
+    li $a0, '\n'              # Load '\n' into $a0 for newline
+    syscall                   # execute that syscall
+
+    # x += 1;
+    addi $t0, $t0, 1          # add 1 to $t0
+
+    # } while(x < 16);
+    li $t1, 16                # Load 16 into $t1 for comparison
+    blt $t0, $t1, number_loop # Branch if $t0 < 16 to `number_loop`
+
+    # exit
+    li $v0, 10                # Load 10 into $v0 for syscall exit
+    syscall                   # execute that syscall

@@ -98,3 +98,26 @@ Additive inverse of $A$ is denoted as $-A$
   A &= underbrace(E_1^(-1) E_2^(-1) E_3^(-1), L) U
   $
 ]
+
+== (Vector) Subspaces
+
+#def([Subspace])[
+  A set $S subset.eq V$ is a subspace of $V$ iff
+  1. $arrow(0) in S$
+  2. $forall arrow(u), arrow(v) in S : arrow(u) + arrow(v) in S$
+  3. $forall c in RR, arrow(u) in S : c arrow(u) in S$
+]
+
+#def([row space, column space])[
+  Let $A$ be an $m times n$ matrix.  Then, the row space of $A$, denoted
+  $"row"(A)$, is the subspace of $RR^n$ spanned by the rows of $A$.  Then the
+  column space of $A$, denoted $"col"(A)$, is the subste of $RR^n$ spanned by
+  the columns of $A$.
+]
+
+#def([null space])[
+  let $A$ is a $m times n$ matrix.
+  Then, $
+  "null"(A) = { arrow(x) in RR^n mid(|) A arrow(x) = arrow(0) }
+  $
+]
